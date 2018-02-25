@@ -1,7 +1,7 @@
 #include "homer.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  parse();
-  return 0;
+    parse();
+    return 0;
 }

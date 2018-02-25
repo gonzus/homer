@@ -5,6 +5,6 @@
 
 extern int sym[26];
 
-int run(nodeType *p);
+int run(nodeType* p);
 
 #endif

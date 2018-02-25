@@ -7,7 +7,9 @@ extern int yyparse (void);
 
 int parse(void)
 {
-  extern int yy_flex_debug;
-  yy_flex_debug = 1;
-  return yyparse();
+#if 0
+    extern int yy_flex_debug;
+    yy_flex_debug = 1;
+#endif
+    return yyparse();
 }
