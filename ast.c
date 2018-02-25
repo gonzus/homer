@@ -31,6 +31,13 @@ nodeType* id(int pos)
 
 nodeType* opr(int oper, int nops, ...)
 {
+#ifdef AST_DEBUG
+    if (oper <= 0xff) {
+        printf("OPR [%c] %d\n", oper, nops);
+    } else {
+        printf("OPR [%d] %d\n", oper, nops);
+    }
+#endif
     nodeType *p = malloc(sizeof(nodeType));
     if (!p) {
         ast_error("out of memory");

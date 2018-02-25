@@ -15,7 +15,7 @@ all: $(EXE_MAIN)
 
 CC = cc
 
-CPPFLAGS  += -DGMEM_CHECK # debug memory allocations
+CPPFLAGS  += -DAST_DEBUG # debug AST operations
 
 CFLAGS    += -std=c89 # use ANSI C
 CFLAGS    += -Wall # warn a lot
