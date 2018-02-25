@@ -3,7 +3,6 @@ C_FILES = \
 	parser.c \
 	ast.c \
 	interp.c \
-	main.c \
 
 C_MAIN = \
 	homer.c \
@@ -51,7 +50,6 @@ parser.o: parser.c parser.h
 ast.o: ast.c
 interp.o: interp.c
 homer.o: homer.c
-main.o: main.c
 
 clean:
 	rm -f parser.c parser.h parser.dot parser.output
