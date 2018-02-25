@@ -36,18 +36,30 @@
                        return INTEGER;
                    }
 
-">"                return GT;
-"<"                return LT;
-">="               return GE;
-"<="               return LE;
-"=="               return EQ;
-"!="               return NE;
 "while"            return WHILE;
 "if"               return IF;
 "else"             return ELSE;
 "print"            return PRINT;
+">="               return GE;
+"<="               return LE;
+"=="               return EQ;
+"!="               return NE;
+">"                return GT;
+"<"                return LT;
+"+"                return ADD;
+"-"                return SUB;
+"*"                return MUL;
+"/"                return DIV;
+"("                return LPAR;
+")"                return RPAR;
+"{"                return LBRC;
+"}"                return RBRC;
+"["                return LBRK;
+"]"                return RBRK;
+"="                return ASS;
+";"                return SEMI;
 
-[-()=+*/;{}.]      return *yytext;
+[.]                return *yytext;
 
 [ \t\n]            ; /* Ignore whitespace */
 

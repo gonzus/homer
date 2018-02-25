@@ -35,26 +35,26 @@ int run(nodeType* p)
                     printf("%d\n", run(p->opr.op[0]));
                     return 0;
 
-                case ';':
+                case SEMI:
                     run(p->opr.op[0]);
                     return run(p->opr.op[1]);
 
-                case '=':
+                case ASS:
                     return sym[p->opr.op[0]->id.pos] = run(p->opr.op[1]);
 
                 case UMINUS:
                     return -run(p->opr.op[0]);
 
-                case '+':
+                case ADD:
                     return run(p->opr.op[0]) +  run(p->opr.op[1]);
 
-                case '-':
+                case SUB:
                     return run(p->opr.op[0]) -  run(p->opr.op[1]);
 
-                case '*':
+                case MUL:
                     return run(p->opr.op[0]) *  run(p->opr.op[1]);
 
-                case '/':
+                case DIV:
                     return run(p->opr.op[0]) /  run(p->opr.op[1]);
 
                 case LT:

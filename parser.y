@@ -17,13 +17,20 @@ void yyerror(char* s);
 %token <iValue> INTEGER
 %token <sIndex> VARIABLE
 %token WHILE IF PRINT
+%token SEMI ASS
 %token GE LE EQ NE GT LT
-%nonassoc IFX
+%token ADD SUB MUL DIV
+%token LPAR RPAR
+%token LBRC RBRC
+%token LBRK RBRK
+
+%nonassoc IFX /* trick to manage dangling else */
 %nonassoc ELSE
 
 %left GE LE EQ NE GT LT
-%left '+' '-'
-%left '*' '/'
+%left ADD SUB
+%left MUL DIV
+
 %nonassoc UMINUS
 
 %type <nPtr> stmt expr stmt_list
@@ -31,45 +38,45 @@ void yyerror(char* s);
 %%
 
 program
-    : function                         { exit(0); }
+    : function                         { exit(0);                      }
     ;
 
 function
     : /* empty */
-    | function stmt                    { run($2); freeNode($2); }
+    | function stmt                    { run($2); freeNode($2);        }
     ;
 
 stmt
-    : ';'                              { $$ = opr(';', 2, NULL, NULL); }
-    | expr ';'                         { $$ = $1;                      }
-    | PRINT expr ';'                   { $$ = opr(PRINT, 1, $2);       }
-    | VARIABLE '=' expr ';'            { $$ = opr('=', 2, id($1), $3); }
-    | WHILE '(' expr ')' stmt          { $$ = opr(WHILE, 2, $3, $5);   }
-    | IF '(' expr ')' stmt %prec IFX   { $$ = opr(IF, 2, $3, $5);      }
-    | IF '(' expr ')' stmt ELSE stmt   { $$ = opr(IF, 3, $3, $5, $7);  }
-    | '{' stmt_list '}'                { $$ = $2;                      }
+    : SEMI                             { $$ = opr(SEMI, 2, 0, 0);      }
+    | expr SEMI                        { $$ = $1;                      }
+    | PRINT expr SEMI                  { $$ = opr(PRINT, 1, $2);       }
+    | VARIABLE ASS expr SEMI           { $$ = opr(ASS, 2, id($1), $3); }
+    | WHILE LPAR expr RPAR stmt        { $$ = opr(WHILE, 2, $3, $5);   }
+    | IF LPAR expr RPAR stmt %prec IFX { $$ = opr(IF, 2, $3, $5);      }
+    | IF LPAR expr RPAR stmt ELSE stmt { $$ = opr(IF, 3, $3, $5, $7);  }
+    | LBRC stmt_list RBRC              { $$ = $2;                      }
     ;
 
 stmt_list
     : stmt                             { $$ = $1;                      }
-    | stmt_list stmt                   { $$ = opr(';', 2, $1, $2);     }
+    | stmt_list stmt                   { $$ = opr(SEMI, 2, $1, $2);    }
     ;
 
 expr
     : INTEGER                          { $$ = con($1);                 }
     | VARIABLE                         { $$ = id($1);                  }
-    | '-' expr %prec UMINUS            { $$ = opr(UMINUS, 1, $2);      }
-    | expr '+' expr                    { $$ = opr('+', 2, $1, $3);     }
-    | expr '-' expr                    { $$ = opr('-', 2, $1, $3);     }
-    | expr '*' expr                    { $$ = opr('*', 2, $1, $3);     }
-    | expr '/' expr                    { $$ = opr('/', 2, $1, $3);     }
+    | SUB expr %prec UMINUS            { $$ = opr(UMINUS, 1, $2);      }
+    | expr ADD expr                    { $$ = opr(ADD, 2, $1, $3);     }
+    | expr SUB expr                    { $$ = opr(SUB, 2, $1, $3);     }
+    | expr MUL expr                    { $$ = opr(MUL, 2, $1, $3);     }
+    | expr DIV expr                    { $$ = opr(DIV, 2, $1, $3);     }
     | expr GT expr                     { $$ = opr(GT, 2, $1, $3);      }
     | expr LT expr                     { $$ = opr(LT, 2, $1, $3);      }
     | expr GE expr                     { $$ = opr(GE, 2, $1, $3);      }
     | expr LE expr                     { $$ = opr(LE, 2, $1, $3);      }
     | expr EQ expr                     { $$ = opr(EQ, 2, $1, $3);      }
     | expr NE expr                     { $$ = opr(NE, 2, $1, $3);      }
-    | '(' expr ')'                     { $$ = $2;                      }
+    | LPAR expr RPAR                   { $$ = $2;                      }
     ;
 
 %%
