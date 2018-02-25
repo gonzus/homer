@@ -3,6 +3,8 @@
 #include "ast.h"
 #include "interp.h"
 
+extern int yylex (void);
+
 void yyerror(char *);
 %}
 
