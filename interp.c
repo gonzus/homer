@@ -15,7 +15,7 @@ int run(nodeType* p)
             return p->con.value;
 
         case typeId:
-            return sym[p->id.i];
+            return sym[p->id.pos];
 
         case typeOpr:
             switch (p->opr.oper) {
@@ -40,7 +40,7 @@ int run(nodeType* p)
                     return run(p->opr.op[1]);
 
                 case '=':
-                    return sym[p->opr.op[0]->id.i] = run(p->opr.op[1]);
+                    return sym[p->opr.op[0]->id.pos] = run(p->opr.op[1]);
 
                 case UMINUS:
                     return -run(p->opr.op[0]);

@@ -16,7 +16,7 @@ nodeType* con(int value)
     return p;
 }
 
-nodeType* id(int i)
+nodeType* id(int pos)
 {
     nodeType* p = malloc(sizeof(nodeType));
     if (!p) {
@@ -25,7 +25,7 @@ nodeType* id(int i)
     }
 
     p->type = typeId;
-    p->id.i = i;
+    p->id.pos = pos;
     return p;
 }
 
