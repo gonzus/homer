@@ -24,16 +24,16 @@ void yyerror(char* s);
 %token LBRC RBRC
 %token LBRK RBRK
 
-%nonassoc IFX /* trick to manage dangling else */
+%nonassoc IFX           /* trick to manage dangling else */
 %nonassoc ELSE
 
-%left GE LE EQ NE GT LT
-%left ADD SUB
-%left MUL DIV
+%left GE LE EQ NE GT LT /* comparison operators */
+%left ADD SUB           /* addition and subtraction */
+%left MUL DIV           /* multiplication and division */
 
-%nonassoc UMINUS
+%nonassoc UMINUS        /* unary minus, highest precedence */
 
-%type <nPtr> stmt expr stmt_list
+%type <nPtr> stmt stmt_list expr
 
 %%
 

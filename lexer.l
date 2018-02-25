@@ -26,7 +26,7 @@
 
 0[0-7]*            {
                        /* an octal constant */
-                       yylval.iValue = strtol(yytext, 0, 8);
+                       yylval.iValue = strtol(yytext + 1, 0, 8);
                        return INTEGER;
                    }
 
@@ -59,11 +59,12 @@
 "="                return ASS;
 ";"                return SEMI;
 
-[.]                return *yytext;
-
 [ \t\n]            ; /* Ignore whitespace */
 
-.                  ast_error("invalid character");
+.                  {
+                       /* anything else is an error */
+                       ast_error("invalid character");
+                   }
 
 %%
 
