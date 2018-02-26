@@ -3,8 +3,6 @@
 
 #include "ast.h"
 
-extern int sym[26];
-
-int run(ASTNode* p);
+int run(ASTNode* n);
 
 #endif

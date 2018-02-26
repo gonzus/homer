@@ -2,6 +2,7 @@ C_FILES = \
 	lexer.c \
 	parser.c \
 	ast.c \
+	symtab.c \
 	interp.c \
 
 C_MAIN = \
@@ -48,6 +49,7 @@ lexer.o: lexer.c parser.h
 
 parser.o: parser.c parser.h
 ast.o: ast.c
+symtab.o: symtab.c
 interp.o: interp.c
 homer.o: homer.c
 

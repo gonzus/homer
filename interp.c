@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include "ast.h"
 #include "parser.h"
+#include "symtab.h"
 #include "interp.h"
-
-int sym[26];
 
 int run(ASTNode* n)
 {
@@ -15,7 +14,7 @@ int run(ASTNode* n)
             return n->cons.value;
 
         case ASTNodeTypeIdentifier:
-            return sym[n->iden.index];
+            return symtab_get(n->iden.index);
 
         case ASTNodeTypeOperator:
             switch (n->oper.oper) {
@@ -40,7 +39,7 @@ int run(ASTNode* n)
                     return run(n->oper.op[1]);
 
                 case ASS:
-                    return sym[n->oper.op[0]->iden.index] = run(n->oper.op[1]);
+                    return symtab_set(n->oper.op[0]->iden.index, run(n->oper.op[1]));
 
                 case UMINUS:
                     return -run(n->oper.op[0]);
