@@ -1,3 +1,5 @@
+all: first
+
 C_FILES = \
 	lexer.c \
 	parser.c \
@@ -8,28 +10,33 @@ C_FILES = \
 C_MAIN = \
 	homer.c \
 
-EXE_MAIN = \
-	$(C_MAIN:.c=)
+# C pre-processor flags
+# CPPFLAGS += -DAST_DEBUG # debug AST operations
 
-all: $(EXE_MAIN)
+# C compiler flags
+CFLAGS += -std=c89      # use ANSI C
+CFLAGS += -Wall -Wextra # warn a lot
+CFLAGS += -Wno-comment  # allow // comments
 
-CC = cc
-
-# CPPFLAGS  += -DAST_DEBUG # debug AST operations
-
-CFLAGS    += -std=c89 # use ANSI C
-CFLAGS    += -Wall # warn a lot
-CFLAGS    += -Wno-comment # allow // comments
-
+# C compiler / linker flags
 ALL_FLAGS += -g # compile / link for debugging
 
-# C compiler flags for lexer.c
-C_LEXER_FLAGS += \
-	-Wno-unused-function \
-	-Wno-unneeded-internal-declaration \
+# special C compiler flags for lexer.c, to avoid these:
+# lexer.c:1262:17: warning: unused function 'yyunput' [-Wunused-function]
+# lexer.c:1303:16: warning: function 'input' is not needed and will not be emitted [-Wunneeded-internal-declaration]
+C_LEXER_FLAGS += -Wno-unused-function
+C_LEXER_FLAGS += -Wno-unneeded-internal-declaration
 
+###################################################
+# no need to modify below this line
+###################################################
+
+CC = cc
+EXE_MAIN = $(C_MAIN:.c=)
 O_FILES = $(C_FILES:.c=.o)
 O_MAIN  = $(C_MAIN:.c=.o)
+
+first: $(EXE_MAIN)
 
 %.o : %.c
 	$(CC) -c $(ALL_FLAGS) $(CFLAGS) $(CPPFLAGS) -o $@ $<
@@ -43,7 +50,6 @@ lexer.c: lexer.l
 parser.c parser.h: parser.y
 	bison -v -d -o parser.c parser.y
 
-# special rule to compile lexer.c
 lexer.o: lexer.c parser.h
 	$(CC) -c $(ALL_FLAGS) $(CFLAGS) $(CPPFLAGS) $(C_LEXER_FLAGS) -o $@ $<
 
