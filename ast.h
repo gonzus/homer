@@ -1,44 +1,45 @@
 #ifndef AST_H_
 #define AST_H_
 
-/* Possible types of node */
+/* Possible types of AST node */
 typedef enum {
-    typeCon,    // constant
-    typeId,     // identifier
-    typeOpr     // operator
-} nodeEnum;
+    ASTNodeTypeConstant,
+    ASTNodeTypeIdentifier,
+    ASTNodeTypeOperator,
+} ASTNodeEnum;
 
-/* Constant nodes */
-typedef struct conNodeType {
+/* Constant AST nodes */
+typedef struct ASTNodeConstant {
     int value;
-} conNodeType;
+} ASTNodeConstant;
 
-/* Identifier nodes */
-typedef struct idNodeType {
-    int pos;
-} idNodeType;
+/* Identifier AST nodes */
+typedef struct ASTNodeIdentifier {
+    // for now our symbol table is just an array
+    // and each symbol is a letter a-z
+    int index;
+} ASTNodeIdentifier;
 
-/* Operator nodes */
-typedef struct oprNodeType {
+/* Operator AST nodes */
+typedef struct ASTNodeOperator {
     int oper;                // Operator
     int nops;                // Number of operants
-    struct nodeType** op; // Operands
-} oprNodeType;
+    struct ASTNode** op; // Operands
+} ASTNodeOperator;
 
-typedef struct nodeType {
-    nodeEnum type;           // Type of node */
+typedef struct ASTNode {
+    ASTNodeEnum type;
     union {
-        conNodeType con;     // constant
-        idNodeType  id;      // identifier
-        oprNodeType opr;     // operator
+        ASTNodeConstant   cons;
+        ASTNodeIdentifier iden;
+        ASTNodeOperator   oper;
     };
-} nodeType;
+} ASTNode;
 
-/* Prototypes */
-nodeType* opr(int oper, int nops, ...);
-nodeType* id(int pos);
-nodeType* con(int value);
-void freeNode(nodeType* p);
+ASTNode* ast_cons(int value);
+ASTNode* ast_iden(int pos);
+ASTNode* ast_oper(int oper, int nops, ...);
+void ast_free(ASTNode* n);
 void ast_error(const char* s);
 
 #endif

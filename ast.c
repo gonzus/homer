@@ -3,33 +3,31 @@
 #include <stdlib.h>
 #include "ast.h"
 
-nodeType* con(int value)
-{
-    nodeType* p = malloc(sizeof(nodeType));
-    if (!p) {
-        ast_error("out of memory");
-        return 0;
+#define AST_CHECK(x) \
+    if (!x) { \
+        ast_error("out of memory"); \
+        return 0; \
     }
+#define AST_ALLOC(t) \
+    ASTNode* n = malloc(sizeof(ASTNode)); \
+    AST_CHECK(n); \
+    n->type = (t)
 
-    p->type = typeCon;
-    p->con.value = value;
-    return p;
+ASTNode* ast_cons(int value)
+{
+    AST_ALLOC(ASTNodeTypeConstant);
+    n->cons.value = value;
+    return n;
 }
 
-nodeType* id(int pos)
+ASTNode* ast_iden(int index)
 {
-    nodeType* p = malloc(sizeof(nodeType));
-    if (!p) {
-        ast_error("out of memory");
-        return 0;
-    }
-
-    p->type = typeId;
-    p->id.pos = pos;
-    return p;
+    AST_ALLOC(ASTNodeTypeIdentifier);
+    n->iden.index = index;
+    return n;
 }
 
-nodeType* opr(int oper, int nops, ...)
+ASTNode* ast_oper(int oper, int nops, ...)
 {
 #ifdef AST_DEBUG
     if (oper <= 0xff) {
@@ -38,46 +36,39 @@ nodeType* opr(int oper, int nops, ...)
         printf("OPR [%d] %d\n", oper, nops);
     }
 #endif
-    nodeType *p = malloc(sizeof(nodeType));
-    if (!p) {
-        ast_error("out of memory");
-        return 0;
-    }
-    p->opr.op = malloc(nops * sizeof(nodeType));
-    if (!p->opr.op) {
-        ast_error("out of memory");
-        return 0;
-    }
+    AST_ALLOC(ASTNodeTypeOperator);
 
-    p->type = typeOpr;
-    p->opr.oper = oper;
-    p->opr.nops = nops;
+    n->oper.op = malloc(nops * sizeof(ASTNode));
+    AST_CHECK(n->oper.op);
+
+    n->oper.oper = oper;
+    n->oper.nops = nops;
 
     va_list ap;
     va_start(ap, nops);
-    for (int i = 0; i < nops; i++)
-        p->opr.op[i] = va_arg(ap, nodeType*);
+    for (int j = 0; j < nops; j++) {
+        n->oper.op[j] = va_arg(ap, ASTNode*);
+    }
     va_end(ap);
 
-    return p;
+    return n;
 }
 
-void freeNode(nodeType* p)
+void ast_free(ASTNode* n)
 {
-    if (!p)
+    if (!n) {
         return;
-
-    if (p->type == typeOpr) {
-        for(int i = 0; i < p->opr.nops; i++)
-            freeNode(p->opr.op[i]);
-        free(p->opr.op);
     }
 
-    free(p);
+    if (n->type == ASTNodeTypeOperator) {
+        for(int j = 0; j < n->oper.nops; j++)
+            ast_free(n->oper.op[j]);
+        free(n->oper.op);
+    }
+    free(n);
 }
 
 void ast_error(const char *s)
 {
     fprintf(stderr, "%s\n", s);
 }
-

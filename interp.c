@@ -5,75 +5,75 @@
 
 int sym[26];
 
-int run(nodeType* p)
+int run(ASTNode* n)
 {
-    if (!p)
+    if (!n)
         return 0;
 
-    switch (p->type) {
-        case typeCon:
-            return p->con.value;
+    switch (n->type) {
+        case ASTNodeTypeConstant:
+            return n->cons.value;
 
-        case typeId:
-            return sym[p->id.pos];
+        case ASTNodeTypeIdentifier:
+            return sym[n->iden.index];
 
-        case typeOpr:
-            switch (p->opr.oper) {
+        case ASTNodeTypeOperator:
+            switch (n->oper.oper) {
                 case WHILE:
-                    while (run(p->opr.op[0]))
-                        run(p->opr.op[1]);
+                    while (run(n->oper.op[0]))
+                        run(n->oper.op[1]);
                     return 0;
 
                 case IF:
-                    if (run(p->opr.op[0]))
-                        run(p->opr.op[1]);
-                    else if(p->opr.nops > 2)
-                        run(p->opr.op[2]);
+                    if (run(n->oper.op[0]))
+                        run(n->oper.op[1]);
+                    else if(n->oper.nops > 2)
+                        run(n->oper.op[2]);
                     return 0;
 
                 case PRINT:
-                    printf("%d\n", run(p->opr.op[0]));
+                    printf("%d\n", run(n->oper.op[0]));
                     return 0;
 
                 case SEMI:
-                    run(p->opr.op[0]);
-                    return run(p->opr.op[1]);
+                    run(n->oper.op[0]);
+                    return run(n->oper.op[1]);
 
                 case ASS:
-                    return sym[p->opr.op[0]->id.pos] = run(p->opr.op[1]);
+                    return sym[n->oper.op[0]->iden.index] = run(n->oper.op[1]);
 
                 case UMINUS:
-                    return -run(p->opr.op[0]);
+                    return -run(n->oper.op[0]);
 
                 case ADD:
-                    return run(p->opr.op[0]) +  run(p->opr.op[1]);
+                    return run(n->oper.op[0]) +  run(n->oper.op[1]);
 
                 case SUB:
-                    return run(p->opr.op[0]) -  run(p->opr.op[1]);
+                    return run(n->oper.op[0]) -  run(n->oper.op[1]);
 
                 case MUL:
-                    return run(p->opr.op[0]) *  run(p->opr.op[1]);
+                    return run(n->oper.op[0]) *  run(n->oper.op[1]);
 
                 case DIV:
-                    return run(p->opr.op[0]) /  run(p->opr.op[1]);
+                    return run(n->oper.op[0]) /  run(n->oper.op[1]);
 
                 case LT:
-                    return run(p->opr.op[0]) <  run(p->opr.op[1]);
+                    return run(n->oper.op[0]) <  run(n->oper.op[1]);
 
                 case GT:
-                    return run(p->opr.op[0]) >  run(p->opr.op[1]);
+                    return run(n->oper.op[0]) >  run(n->oper.op[1]);
 
                 case GE:
-                    return run(p->opr.op[0]) >= run(p->opr.op[1]);
+                    return run(n->oper.op[0]) >= run(n->oper.op[1]);
 
                 case LE:
-                    return run(p->opr.op[0]) <= run(p->opr.op[1]);
+                    return run(n->oper.op[0]) <= run(n->oper.op[1]);
 
                 case EQ:
-                    return run(p->opr.op[0]) == run(p->opr.op[1]);
+                    return run(n->oper.op[0]) == run(n->oper.op[1]);
 
                 case NE:
-                    return run(p->opr.op[0]) != run(p->opr.op[1]);
+                    return run(n->oper.op[0]) != run(n->oper.op[1]);
             }
     }
 
