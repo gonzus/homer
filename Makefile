@@ -48,11 +48,11 @@ first: $(EXE)
 $(EXE): $(O_FILES) $(O_MAIN)
 	$(CC) $(ALL_FLAGS) $^ -o $@
 
-lexer.c: lexer.l
-	flex -o lexer.c lexer.l
+lexer.c lexer.h: lexer.l
+	flex --header-file=lexer.h --outfile=lexer.c lexer.l
 
 parser.c parser.h: parser.y
-	bison -v -d -o parser.c parser.y
+	bison --verbose --output-file=parser.c --defines=parser.h parser.y
 
 lexer.o: lexer.c parser.h
 	$(CC) -c $(ALL_FLAGS) $(CFLAGS) $(CPPFLAGS) $(C_LEXER_FLAGS) -o $@ $<
@@ -66,5 +66,5 @@ homer.o: homer.c parser.h
 
 clean:
 	rm -f parser.c parser.h parser.dot parser.output
-	rm -f lexer.c
+	rm -f lexer.c lexer.h
 	rm -f $(EXE) *.o *~

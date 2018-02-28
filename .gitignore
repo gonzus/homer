@@ -2,6 +2,7 @@ parser.c
 parser.h
 parser.output
 lexer.c
+lexer.h
 *.o
 *.swp
 homer
