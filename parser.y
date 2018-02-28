@@ -5,10 +5,10 @@
 
 %token-table            /* let's have token names please */
 
-%union {
-  int iValue;           /* integer value */
-  Symbol* symbol;       /* symbol table index */
-  ASTNode* ast;         /* AST node pointer */
+%union {                /* A token returned from the lexer can be: */
+  int iValue;           /*   integer value                 */
+  Symbol* symbol;       /*   pointer to symbol table entry */
+  ASTNode* ast;         /*   pointer to AST node           */
 }
 
 %token <iValue> INTEGER
@@ -18,20 +18,17 @@
 %token LPAR RPAR
 %token LBRC RBRC
 %token LBRK RBRK
-
 %nonassoc IFX           /* trick to manage dangling else */
 %nonassoc ELSE
 
-/* operators; the later they are, the higher the precedence */
-
 %left LOR
 %left LAND
-%nonassoc LNOT
+%nonassoc LNOT          /* logical NOT, highest precedence */
 
-%left GE LE EQ NE GT LT /* comparison operators */
+%left GE LE EQ NE GT LT /* comparison operators, equal precedence */
 
-%left ADD SUB           /* addition and subtraction */
-%left MUL DIV           /* multiplication and division */
+%left ADD SUB
+%left MUL DIV
 %nonassoc UMINUS        /* unary minus, highest precedence */
 
 %type <ast> program stmt stmt_list expr
@@ -39,7 +36,7 @@
 %%
 
 program
-    : stmt_list                        { homer->root = $1; homer_run(); }
+    : stmt_list                        { homer->root = $1; }
     ;
 
 stmt

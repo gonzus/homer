@@ -41,7 +41,11 @@ int homer_parse(void)
 #endif
 
     homer = homer_build();
-    yyparse();
+    if (yyparse() == 0) {
+        homer_run();
+    } else {
+        fprintf(stderr, "Could not parse input\n");
+    }
     homer_destroy(homer);
     homer = 0;
     return 0;
