@@ -8,13 +8,14 @@ C_FILES = \
 	ast.c \
 	symtab.c \
 	interp.c \
+	log.c \
 	homer.c \
 
 C_MAIN = \
 	main.c \
 
 # C pre-processor flags
-# CPPFLAGS += -DAST_DEBUG # debug AST operations
+# CPPFLAGS += -DHOMER_LOG # debug homer
 
 # C compiler flags
 CFLAGS += -std=c89      # use ANSI C
@@ -60,6 +61,7 @@ parser.o: parser.c parser.h
 ast.o: ast.c
 symtab.o: symtab.c
 interp.o: interp.c parser.h
+log.o: log.c
 homer.o: homer.c parser.h
 
 clean:

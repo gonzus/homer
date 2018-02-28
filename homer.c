@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "parser.h"
 #include "interp.h"
+#include "log.h"
 #include "homer.h"
 
 // Need to refer to this from lexer.l & parser.y
@@ -46,6 +47,7 @@ int homer_parse(void)
 
 int homer_run(void)
 {
+    LOG(("RUNNING root %p", homer->root));
     run(homer->root, homer->symtab);
     ast_free(homer->root);
     homer->root = 0;

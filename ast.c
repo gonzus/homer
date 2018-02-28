@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "log.h"
 #include "ast.h"
 
 #define AST_CHECK(x) \
@@ -22,6 +23,7 @@ ASTNode* ast_cons(int value)
 
 ASTNode* ast_iden(Symbol* symbol)
 {
+    LOG(("ast_iden(%p => %d - %s)", symbol, symbol->token, symbol->name));
     AST_ALLOC(ASTNodeTypeIdentifier);
     n->iden.symbol = symbol;
     return n;
@@ -29,13 +31,8 @@ ASTNode* ast_iden(Symbol* symbol)
 
 ASTNode* ast_oper(int oper, int nops, ...)
 {
-#ifdef AST_DEBUG
-    if (oper <= 0xff) {
-        printf("OPR [%c] %d\n", oper, nops);
-    } else {
-        printf("OPR [%d] %d\n", oper, nops);
-    }
-#endif
+    LOG(("OPR [%d] %d", oper, nops));
+
     AST_ALLOC(ASTNodeTypeOperator);
 
     n->oper.op = malloc(nops * sizeof(ASTNode));
@@ -60,6 +57,7 @@ void ast_free(ASTNode* n)
         return;
     }
 
+    LOG(("AST DESTROY %p", n));
     if (n->type == ASTNodeTypeOperator) {
         for(int j = 0; j < n->oper.nops; j++)
             ast_free(n->oper.op[j]);

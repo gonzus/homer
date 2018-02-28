@@ -1,21 +1,26 @@
 #include <stdio.h>
 #include "ast.h"
 #include "parser.h"
+#include "log.h"
 #include "interp.h"
 
 int run(ASTNode* n, SymTab* symtab)
 {
+    LOG(("RUN %p", n));
     if (!n)
         return 0;
 
     switch (n->type) {
         case ASTNodeTypeConstant:
+            LOG(("RUN constant %d", n->cons.value));
             return n->cons.value;
 
         case ASTNodeTypeIdentifier:
+            LOG(("RUN identifier %d", n->iden.symbol->value));
             return n->iden.symbol->value;
 
         case ASTNodeTypeOperator:
+            LOG(("RUN operator %d", n->oper.oper));
             switch (n->oper.oper) {
                 case WHILE:
                     while (run(n->oper.op[0], symtab))
