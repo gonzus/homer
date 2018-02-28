@@ -1,9 +1,6 @@
 %{
-#include <stdlib.h>
 #include "ast.h"
 #include "homer.h"
-
-void yyerror(char* s);
 %}
 
 %token-table            /* let's have token names please */
@@ -11,15 +8,13 @@ void yyerror(char* s);
 %union {
   int iValue;           /* integer value */
   Symbol* symbol;       /* symbol table index */
-  ASTNode* nPtr;        /* AST node pointer */
+  ASTNode* ast;         /* AST node pointer */
 }
 
 %token <iValue> INTEGER
 %token <symbol> VARIABLE
 %token WHILE IF PRINT
 %token SEMI ASS
-%token GE LE EQ NE GT LT
-%token ADD SUB MUL DIV
 %token LPAR RPAR
 %token LBRC RBRC
 %token LBRK RBRK
@@ -27,13 +22,13 @@ void yyerror(char* s);
 %nonassoc IFX           /* trick to manage dangling else */
 %nonassoc ELSE
 
+/* operators; the later they are, the higher the precedence */
 %left GE LE EQ NE GT LT /* comparison operators */
 %left ADD SUB           /* addition and subtraction */
 %left MUL DIV           /* multiplication and division */
-
 %nonassoc UMINUS        /* unary minus, highest precedence */
 
-%type <nPtr> stmt stmt_list expr
+%type <ast> stmt stmt_list expr
 
 %%
 
@@ -81,7 +76,9 @@ expr
 
 %%
 
-void yyerror(char* s)
+/* these functions are used internally or use something internal */
+
+void yyerror(const char* s)
 {
   ast_error(s);
 }

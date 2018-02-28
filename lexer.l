@@ -1,8 +1,6 @@
 %{
-#include <stdlib.h>
 #include "ast.h"
 #include "parser.h"
-#include "log.h"
 #include "homer.h"
 %}
 
@@ -65,7 +63,6 @@ IDREST              [_A-Za-z0-9]
 {IDINIT}{IDREST}*   {
                         /* an identifier */
                         /* if lookup fails, create it as a VARIABLE */
-                        LOG(("GONZO"));
                         Symbol* s = symtab_lookup(homer->symtab, yytext, VARIABLE);
                         yylval.symbol = s;
                         return s->token;
@@ -84,5 +81,6 @@ IDREST              [_A-Za-z0-9]
 
 int yywrap()
 {
+    // process a single file
     return 1;
 }

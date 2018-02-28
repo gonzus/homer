@@ -4,8 +4,9 @@
 #include "ast.h"
 #include "symtab.h"
 
-extern int yylex(void);
-extern int yyparse(void);
+void yyerror(const char* s);
+int yylex(void);
+int yyparse(void);
 const char* token_name(int token);
 
 typedef struct Homer {
