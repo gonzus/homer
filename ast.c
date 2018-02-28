@@ -32,7 +32,7 @@ ASTNode* ast_iden(Symbol* symbol)
 
 ASTNode* ast_oper(int oper, int nops, ...)
 {
-    LOG(("OPR [%d] %d", oper, nops));
+    LOG(("OPR [%s] with %d operands", token_name(oper), nops));
 
     AST_ALLOC(ASTNodeTypeOperator);
 

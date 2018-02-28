@@ -28,17 +28,12 @@
 %left MUL DIV           /* multiplication and division */
 %nonassoc UMINUS        /* unary minus, highest precedence */
 
-%type <ast> stmt stmt_list expr
+%type <ast> program stmt stmt_list expr
 
 %%
 
 program
-    : function
-    ;
-
-function
-    : /* empty */
-    | function stmt                    { homer->root = $2; homer_run(); }
+    : stmt_list                        { homer->root = $1; homer_run(); }
     ;
 
 stmt
