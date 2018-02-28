@@ -80,10 +80,10 @@ expr
 
 void yyerror(const char* s)
 {
-  ast_error(s);
+    homer_error(s);
 }
 
 const char* token_name(int token)
 {
-  return yytname[YYTRANSLATE(token)];
+    return yytname[YYTRANSLATE(token)];
 }

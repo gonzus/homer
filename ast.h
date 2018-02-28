@@ -41,6 +41,5 @@ ASTNode* ast_cons(int value);
 ASTNode* ast_iden(Symbol* symbol);
 ASTNode* ast_oper(int oper, int nops, ...);
 void ast_free(ASTNode* n);
-void ast_error(const char* s);
 
 #endif

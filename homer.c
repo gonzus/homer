@@ -1,4 +1,5 @@
 #include <memory.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "util.h"
@@ -17,6 +18,7 @@ static Homer* homer_build(void)
 {
     Homer* homer = (Homer*) malloc(sizeof(Homer));
     memset(homer, 0, sizeof(Homer));
+    homer->lineno = 1;
     homer->symtab = symtab_build(0);
     init_symtab(homer->symtab);
     return homer;
@@ -52,6 +54,16 @@ int homer_run(void)
     ast_free(homer->root);
     homer->root = 0;
     return 0;
+}
+
+void homer_error(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    fprintf(stderr, "error on line %d: ", homer->lineno);
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    va_end(ap);
 }
 
 static void init_symtab(SymTab* symtab)

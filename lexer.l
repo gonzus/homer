@@ -8,7 +8,8 @@ BIN                 [0-1]
 OCT                 [0-7]
 DEC                 [0-9]
 HEX                 [0-9a-fA-F]
-SPACE               [ \t\n]
+SPACE               [ \t]
+NEWL                [\n]
 
 IDINIT              [_A-Za-z]
 IDREST              [_A-Za-z0-9]
@@ -68,13 +69,18 @@ IDREST              [_A-Za-z0-9]
                         return s->token;
                     }
 
+{NEWL}              {
+                        /* ignore newlines, but keep a line count */
+                        ++homer->lineno;
+                    }
+
 {SPACE}             {
-                        /* Ignore whitespace */
+                        /* ignore whitespace */
                     }
 
 .                   {
                         /* anything else is an error */
-                        ast_error("invalid character");
+                        homer_error("invalid character '%c'", yytext[0]);
                     }
 
 %%

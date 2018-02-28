@@ -7,7 +7,7 @@
 
 #define AST_CHECK(x) \
     if (!x) { \
-        ast_error("out of memory"); \
+        homer_error("out of memory"); \
         return 0; \
     }
 #define AST_ALLOC(t) \
@@ -65,9 +65,4 @@ void ast_free(ASTNode* n)
         free(n->oper.op);
     }
     free(n);
-}
-
-void ast_error(const char *s)
-{
-    fprintf(stderr, "%s\n", s);
 }
