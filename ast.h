@@ -1,6 +1,8 @@
 #ifndef AST_H_
 #define AST_H_
 
+#include "symtab.h"
+
 /* Possible types of AST node */
 typedef enum {
     ASTNodeTypeConstant,
@@ -15,9 +17,7 @@ typedef struct ASTNodeConstant {
 
 /* Identifier AST nodes */
 typedef struct ASTNodeIdentifier {
-    // for now our symbol table is just an array
-    // and each symbol is a letter a-z
-    int index;
+    Symbol* symbol;
 } ASTNodeIdentifier;
 
 /* Operator AST nodes */
@@ -27,6 +27,7 @@ typedef struct ASTNodeOperator {
     struct ASTNode** op; // Operands
 } ASTNodeOperator;
 
+/* AST nodes */
 typedef struct ASTNode {
     ASTNodeEnum type;
     union {
@@ -37,7 +38,7 @@ typedef struct ASTNode {
 } ASTNode;
 
 ASTNode* ast_cons(int value);
-ASTNode* ast_iden(int pos);
+ASTNode* ast_iden(Symbol* symbol);
 ASTNode* ast_oper(int oper, int nops, ...);
 void ast_free(ASTNode* n);
 void ast_error(const char* s);

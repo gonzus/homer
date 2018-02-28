@@ -2,7 +2,8 @@
 #define INTERP_H_
 
 #include "ast.h"
+#include "symtab.h"
 
-int run(ASTNode* n);
+int run(ASTNode* node, SymTab* symtab);
 
 #endif

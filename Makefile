@@ -1,14 +1,17 @@
 all: first
 
+NAME = homer
+
 C_FILES = \
 	lexer.c \
 	parser.c \
 	ast.c \
 	symtab.c \
 	interp.c \
+	homer.c \
 
 C_MAIN = \
-	homer.c \
+	main.c \
 
 # C pre-processor flags
 # CPPFLAGS += -DAST_DEBUG # debug AST operations
@@ -32,16 +35,16 @@ C_LEXER_FLAGS += -Wno-unneeded-internal-declaration
 ###################################################
 
 CC = cc
-EXE_MAIN = $(C_MAIN:.c=)
+EXE = $(NAME)
 O_FILES = $(C_FILES:.c=.o)
 O_MAIN  = $(C_MAIN:.c=.o)
 
-first: $(EXE_MAIN)
+first: $(EXE)
 
 %.o : %.c
 	$(CC) -c $(ALL_FLAGS) $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
-$(EXE_MAIN): $(O_FILES) $(O_MAIN)
+$(EXE): $(O_FILES) $(O_MAIN)
 	$(CC) $(ALL_FLAGS) $^ -o $@
 
 lexer.c: lexer.l
@@ -56,10 +59,10 @@ lexer.o: lexer.c parser.h
 parser.o: parser.c parser.h
 ast.o: ast.c
 symtab.o: symtab.c
-interp.o: interp.c
-homer.o: homer.c
+interp.o: interp.c parser.h
+homer.o: homer.c parser.h
 
 clean:
 	rm -f parser.c parser.h parser.dot parser.output
 	rm -f lexer.c
-	rm -f $(EXE_MAIN) *.o *~
+	rm -f $(EXE) *.o *~

@@ -20,10 +20,10 @@ ASTNode* ast_cons(int value)
     return n;
 }
 
-ASTNode* ast_iden(int index)
+ASTNode* ast_iden(Symbol* symbol)
 {
     AST_ALLOC(ASTNodeTypeIdentifier);
-    n->iden.index = index;
+    n->iden.symbol = symbol;
     return n;
 }
 

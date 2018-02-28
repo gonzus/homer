@@ -2,15 +2,10 @@
 #include <stdlib.h>
 #include "ast.h"
 #include "parser.h"
+#include "homer.h"
 %}
 
 %%
-
-[a-z]              {
-                       /* single lowercase letter: variable */
-                       yylval.sIndex = yytext[0] - 'a';
-                       return VARIABLE;
-                   }
 
 0                  {
                        /* just a 0 */
@@ -36,10 +31,6 @@
                        return INTEGER;
                    }
 
-"while"            return WHILE;
-"if"               return IF;
-"else"             return ELSE;
-"print"            return PRINT;
 ">="               return GE;
 "<="               return LE;
 "=="               return EQ;
@@ -58,6 +49,15 @@
 "]"                return RBRK;
 "="                return ASS;
 ";"                return SEMI;
+
+[_a-zA-Z][_a-zA-Z0-9]* { /* an identifier */
+                       Symbol* s = symtab_lookup(homer->symtab, yytext);
+                       if (!s) {
+                           s = symtab_create(homer->symtab, yytext, VARIABLE);
+                       }
+                       yylval.symbol = s;
+                       return s->token;
+                   }
 
 [ \t\n]            ; /* Ignore whitespace */
 

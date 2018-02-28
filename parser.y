@@ -1,21 +1,19 @@
 %{
 #include <stdlib.h>
 #include "ast.h"
-#include "interp.h"
-
-extern int yylex (void);
+#include "homer.h"
 
 void yyerror(char* s);
 %}
 
 %union {
   int iValue;           /* integer value */
-  char sIndex;          /* symbol table index */
+  Symbol* symbol;       /* symbol table index */
   ASTNode* nPtr;        /* AST node pointer */
 }
 
 %token <iValue> INTEGER
-%token <sIndex> VARIABLE
+%token <symbol> VARIABLE
 %token WHILE IF PRINT
 %token SEMI ASS
 %token GE LE EQ NE GT LT
@@ -38,12 +36,12 @@ void yyerror(char* s);
 %%
 
 program
-    : function                         { exit(0); }
+    : function
     ;
 
 function
     : /* empty */
-    | function stmt                    { run($2); ast_free($2); }
+    | function stmt                    { homer->root = $2; homer_run(); }
     ;
 
 stmt

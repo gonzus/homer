@@ -1,16 +1,16 @@
-f = 4;
+count = 4;
 
-i = 1;
-j = 1;
+f0 = 1;
+f1 = 1;
 
-while(f > 0)
+while(count > 0)
 {
-  t = i;
+  tmp = f0;
 
-  i = i + j;
-  j = t;
+  f0 = f0 + f1;
+  f1 = tmp;
 
-  f = f - 1;
+  count = count - 1;
 }
 
-print(i);
+print(f0);

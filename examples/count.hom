@@ -1,6 +1,6 @@
-i = 0;
-while(i < 0xf) {
-  i = i + 1;
-  print(i);
+count = 0;
+while(count < 0xf) {
+  count = count + 1;
+  print(count);
 }
 
