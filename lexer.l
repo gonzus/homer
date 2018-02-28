@@ -42,10 +42,15 @@ IDREST              [_A-Za-z0-9]
                         return INTEGER;
                     }
 
+"&&"                return LAND;
+"||"                return LOR;
+"!"                 return LNOT;
+
 ">="                return GE;
 "<="                return LE;
 "=="                return EQ;
 "!="                return NE;
+
 ">"                 return GT;
 "<"                 return LT;
 "+"                 return ADD;
@@ -62,7 +67,6 @@ IDREST              [_A-Za-z0-9]
 ";"                 return SEMI;
 
 {IDINIT}{IDREST}*   {
-                        /* an identifier */
                         /* if lookup fails, create it as a VARIABLE */
                         Symbol* s = symtab_lookup(homer->symtab, yytext, VARIABLE);
                         yylval.symbol = s;
@@ -72,16 +76,13 @@ IDREST              [_A-Za-z0-9]
 [#].*               {
                         /* ignore comments */
                     }
-
 {NEWL}              {
                         /* ignore newlines, but keep a line count */
                         ++homer->lineno;
                     }
-
 {SPACE}             {
                         /* ignore whitespace */
                     }
-
 .                   {
                         /* anything else is an error */
                         homer_error("invalid character '%c'", yytext[0]);

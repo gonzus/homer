@@ -2,6 +2,7 @@
 #include "ast.h"
 #include "parser.h"
 #include "log.h"
+#include "homer.h"
 #include "interp.h"
 
 int run(ASTNode* n, SymTab* symtab)
@@ -77,6 +78,19 @@ int run(ASTNode* n, SymTab* symtab)
 
                 case NE:
                     return run(n->oper.op[0], symtab) != run(n->oper.op[1], symtab);
+
+                case LAND:
+                    return run(n->oper.op[0], symtab) && run(n->oper.op[1], symtab);
+
+                case LOR:
+                    return run(n->oper.op[0], symtab) || run(n->oper.op[1], symtab);
+
+                case LNOT:
+                    return ! run(n->oper.op[0], symtab);
+
+                default:
+                    homer_error("unknown operand %d - %s", n->oper.oper, token_name(n->oper.oper));
+                    return 0;
             }
     }
 

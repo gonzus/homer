@@ -23,7 +23,13 @@
 %nonassoc ELSE
 
 /* operators; the later they are, the higher the precedence */
+
+%left LOR
+%left LAND
+%nonassoc LNOT
+
 %left GE LE EQ NE GT LT /* comparison operators */
+
 %left ADD SUB           /* addition and subtraction */
 %left MUL DIV           /* multiplication and division */
 %nonassoc UMINUS        /* unary minus, highest precedence */
@@ -66,6 +72,9 @@ expr
     | expr LE expr                     { $$ = ast_oper(LE, 2, $1, $3); }
     | expr EQ expr                     { $$ = ast_oper(EQ, 2, $1, $3); }
     | expr NE expr                     { $$ = ast_oper(NE, 2, $1, $3); }
+    | expr LAND expr                   { $$ = ast_oper(LAND, 2, $1, $3); }
+    | expr LOR expr                    { $$ = ast_oper(LOR, 2, $1, $3); }
+    | LNOT expr                        { $$ = ast_oper(LNOT, 1, $2); }
     | LPAR expr RPAR                   { $$ = $2; }
     ;
 

@@ -1,0 +1,13 @@
+# test arithmetic
+
+j = 2;
+k = 3;
+l = 4;
+
+print 100;
+
+if (2+3*4 == 14) { print 1; } else { print 0; }
+if (2*3+4 == 10) { print 1; } else { print 0; }
+if (2*3*4 == 24) { print 1; } else { print 0; }
+
+print 999;
