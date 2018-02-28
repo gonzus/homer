@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "log.h"
+#include "homer.h"
 #include "ast.h"
 
 #define AST_CHECK(x) \
@@ -23,7 +24,7 @@ ASTNode* ast_cons(int value)
 
 ASTNode* ast_iden(Symbol* symbol)
 {
-    LOG(("ast_iden(%p => %d - %s)", symbol, symbol->token, symbol->name));
+    LOG(("ast_iden(%p => %s - %s)", symbol, token_name(symbol->token), symbol->name));
     AST_ALLOC(ASTNodeTypeIdentifier);
     n->iden.symbol = symbol;
     return n;

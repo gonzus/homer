@@ -3,6 +3,7 @@
 #include <string.h>
 #include "ast.h"
 #include "log.h"
+#include "homer.h"
 #include "symtab.h"
 
 #define SYMTAB_DEFAULT_SIZE 211
@@ -49,7 +50,7 @@ Symbol* symtab_lookup(SymTab* symtab, const char* name)
     int h = hash(name) % symtab->size;
     for (Symbol* s = symtab->table[h]; s != 0; s = s->next) {
         if (strcmp(name, s->name) == 0) {
-            LOG(("LOOKUP %p [%s] => %d %d - %p", symtab, name, h, s->token, s));
+            LOG(("LOOKUP %p [%s] => %d %s - %p", symtab, name, h, token_name(s->token), s));
             return s;
         }
     }
@@ -66,6 +67,6 @@ Symbol* symtab_create(SymTab* symtab, const char* name, int token)
     s->token = token;
     s->next = symtab->table[h];
     symtab->table[h] = s;
-    LOG(("CREATE %p %d - [%s] => %d %p", symtab, token, name, h, s));
+    LOG(("CREATE %p %s - [%s] => %d %p", symtab, token_name(token), name, h, s));
     return s;
 }

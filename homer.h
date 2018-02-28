@@ -6,6 +6,7 @@
 
 extern int yylex(void);
 extern int yyparse(void);
+const char* token_name(int token);
 
 typedef struct Homer {
     ASTNode* root;

@@ -6,6 +6,8 @@
 void yyerror(char* s);
 %}
 
+%token-table            /* let's have token names please */
+
 %union {
   int iValue;           /* integer value */
   Symbol* symbol;       /* symbol table index */
@@ -82,4 +84,9 @@ expr
 void yyerror(char* s)
 {
   ast_error(s);
+}
+
+const char* token_name(int token)
+{
+  return yytname[YYTRANSLATE(token)];
 }
