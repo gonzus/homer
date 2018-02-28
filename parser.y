@@ -2,13 +2,16 @@
 #include "ast.h"
 #include "homer.h"
 #include "parser.h"
+#include "reentrant.h"
 #include "lexer.h"
+#include "util.h"
 
 void yyerror(yyscan_t scanner, Homer* homer, char const *msg);
 %}
 
 %define api.pure full
 %lex-param   {void *scanner}
+%lex-param   {Homer* homer}
 %parse-param {void *scanner}
 %parse-param {Homer* homer}
 
@@ -90,9 +93,8 @@ expr
 
 void yyerror(yyscan_t scanner, Homer* homer, char const *msg)
 {
-    (void) scanner;
-    (void) homer;
-    homer_error(msg);
+    UNUSED_PARAMETER(scanner);
+    homer_error(homer, msg);
 }
 
 const char* token_name(int token)

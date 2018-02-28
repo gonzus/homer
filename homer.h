@@ -10,12 +10,12 @@ typedef struct Homer {
     SymTab* symtab;
 } Homer;
 
-extern Homer* homer_global;
-
 const char* token_name(int token);
 
-int homer_parse(void);
-int homer_run(void);
-void homer_error(const char *fmt, ...);
+Homer* homer_build(void);
+void homer_destroy(Homer* homer);
+int homer_parse(Homer* homer);
+int homer_run(Homer* homer);
+void homer_error(Homer* homer, const char *fmt, ...);
 
 #endif

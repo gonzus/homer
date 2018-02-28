@@ -89,7 +89,7 @@ int run(ASTNode* n, SymTab* symtab)
                     return ! run(n->oper.op[0], symtab);
 
                 default:
-                    homer_error("unknown operand %d - %s", n->oper.oper, token_name(n->oper.oper));
+                    // homer_error("unknown operand %d - %s", n->oper.oper, token_name(n->oper.oper));
                     return 0;
             }
     }

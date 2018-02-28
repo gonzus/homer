@@ -2,6 +2,7 @@
 #include "ast.h"
 #include "homer.h"
 #include "parser.h"
+#include "reentrant.h"
 %}
 
 %option noyywrap
@@ -71,7 +72,7 @@ IDREST              [_A-Za-z0-9]
 
 {IDINIT}{IDREST}*   {
                         /* if lookup fails, create it as a VARIABLE */
-                        Symbol* s = symtab_lookup(homer_global->symtab, yytext, VARIABLE);
+                        Symbol* s = symtab_lookup(homer->symtab, yytext, VARIABLE);
                         yylval->symbol = s;
                         return s->token;
                     }
@@ -81,12 +82,12 @@ IDREST              [_A-Za-z0-9]
                     }
 {NEWL}              {
                         /* ignore newlines, but keep a line count */
-                        ++homer_global->lineno;
+                        ++homer->lineno;
                     }
 {SPACE}             {
                         /* ignore whitespace */
                     }
 .                   {
                         /* anything else is an error */
-                        homer_error("invalid character '%c'", yytext[0]);
+                        homer_error(homer, "invalid character '%c'", yytext[0]);
                     }

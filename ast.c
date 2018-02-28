@@ -5,9 +5,9 @@
 #include "homer.h"
 #include "ast.h"
 
+        // homer_error("out of memory");
 #define AST_CHECK(x) \
     if (!x) { \
-        homer_error("out of memory"); \
         return 0; \
     }
 #define AST_ALLOC(t) \
