@@ -1,7 +1,15 @@
 all: first
 
+
+###################################################
+# program name
+###################################################
 NAME = homer
 
+
+###################################################
+# C files
+###################################################
 C_FILES = \
 	lexer.c \
 	parser.c \
@@ -10,42 +18,63 @@ C_FILES = \
 	interp.c \
 	log.c \
 	homer.c \
-
-C_MAIN = \
 	main.c \
 
-# C pre-processor flags
-# CPPFLAGS += -DHOMER_LOG # debug homer
-
-# C compiler flags
-CFLAGS += -std=c89      # use ANSI C
-CFLAGS += -Wall -Wextra # warn a lot
-CFLAGS += -Wno-comment  # allow // comments
-
-# C compiler / linker flags
-ALL_FLAGS += -g # compile / link for debugging
-
-# special C compiler flags for lexer.c, to avoid these:
-# lexer.c:1262:17: warning: unused function 'yyunput' [-Wunused-function]
-# lexer.c:1303:16: warning: function 'input' is not needed and will not be emitted [-Wunneeded-internal-declaration]
-C_LEXER_FLAGS += -Wno-unused-function
-C_LEXER_FLAGS += -Wno-unneeded-internal-declaration
 
 ###################################################
-# no need to modify below this line
+# C pre-processor flags
+###################################################
+
+# debug homer
+# CPPFLAGS += -DHOMER_LOG
+
+
+###################################################
+# C compiler flags
+###################################################
+
+# use ANSI C
+CFLAGS += -std=c89
+
+# warn a lot
+CFLAGS += -Wall -Wextra
+
+# allow // comments
+CFLAGS += -Wno-comment
+
+
+###################################################
+# C compiler / linker flags
+###################################################
+
+# compile / link for debugging
+ALL_FLAGS += -g
+
+
+###################################################
+# special C compiler flags for lexer.c
+###################################################
+
+# lexer.c:1262:17: warning: unused function 'yyunput' [-Wunused-function]
+C_LEXER_FLAGS += -Wno-unused-function
+# lexer.c:1303:16: warning: function 'input' is not needed and will not be emitted [-Wunneeded-internal-declaration]
+C_LEXER_FLAGS += -Wno-unneeded-internal-declaration
+
+
+###################################################
+# ------- no need to modify below this line -------
 ###################################################
 
 CC = cc
 EXE = $(NAME)
 O_FILES = $(C_FILES:.c=.o)
-O_MAIN  = $(C_MAIN:.c=.o)
 
 first: $(EXE)
 
 %.o : %.c
 	$(CC) -c $(ALL_FLAGS) $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
-$(EXE): $(O_FILES) $(O_MAIN)
+$(EXE): $(O_FILES)
 	$(CC) $(ALL_FLAGS) $^ -o $@
 
 lexer.c lexer.h: lexer.l
