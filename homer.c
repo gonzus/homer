@@ -66,6 +66,6 @@ static void init_symtab(SymTab* symtab)
         { "print", PRINT },
     };
     for (unsigned long j = 0; j < sizeof(reserved) / sizeof(reserved[0]); ++j) {
-        symtab_create(symtab, reserved[j].lexeme, reserved[j].token);
+        symtab_lookup(symtab, reserved[j].lexeme, reserved[j].token);
     }
 }

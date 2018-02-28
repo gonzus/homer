@@ -16,7 +16,6 @@ typedef struct SymTab {
 SymTab* symtab_build(int size);
 void symtab_destroy(SymTab* symtab);
 
-Symbol* symtab_lookup(SymTab* symtab, const char* name);
-Symbol* symtab_create(SymTab* symtab, const char* name, int token);
+Symbol* symtab_lookup(SymTab* symtab, const char* name, int token);
 
 #endif

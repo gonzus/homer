@@ -45,23 +45,28 @@ static unsigned long hash(const char *s)
     return h;
 }
 
-Symbol* symtab_lookup(SymTab* symtab, const char* name)
+Symbol* symtab_lookup(SymTab* symtab, const char* name, int token)
 {
+    Symbol* s = 0;
     int h = hash(name) % symtab->size;
-    for (Symbol* s = symtab->table[h]; s != 0; s = s->next) {
+    for (s = symtab->table[h]; s != 0; s = s->next) {
         if (strcmp(name, s->name) == 0) {
+            // found it!
             LOG(("LOOKUP %p [%s] => %d %s - %p", symtab, name, h, token_name(s->token), s));
             return s;
         }
     }
-    LOG(("LOOKUP %p [%s] => %d NIL", symtab, name, h));
-    return 0;
-}
 
-Symbol* symtab_create(SymTab* symtab, const char* name, int token)
-{
-    int h = hash(name) % symtab->size;
-    Symbol* s = (Symbol*) malloc(sizeof(Symbol));
+    // not there...
+    LOG(("LOOKUP %p [%s] => %d NIL", symtab, name, h));
+
+    if (!token) {
+        // ... and we were not asked to create it
+        return 0;
+    }
+
+    // create it then, at the head of its list
+    s = (Symbol*) malloc(sizeof(Symbol));
     memset(s, 0, sizeof(Symbol));
     s->name = strdup(name);
     s->token = token;

@@ -62,14 +62,14 @@ IDREST              [_A-Za-z0-9]
 "="                 return ASS;  // :-)
 ";"                 return SEMI;
 
-[_a-zA-Z][_a-zA-Z0-9]* { /* an identifier */
-                       Symbol* s = symtab_lookup(homer->symtab, yytext);
-                       if (!s) {
-                           s = symtab_create(homer->symtab, yytext, VARIABLE);
-                       }
-                       yylval.symbol = s;
-                       return s->token;
-                   }
+{IDINIT}{IDREST}*   {
+                        /* an identifier */
+                        /* if lookup fails, create it as a VARIABLE */
+                        LOG(("GONZO"));
+                        Symbol* s = symtab_lookup(homer->symtab, yytext, VARIABLE);
+                        yylval.symbol = s;
+                        return s->token;
+                    }
 
 {SPACE}             {
                         /* Ignore whitespace */
