@@ -69,6 +69,10 @@ IDREST              [_A-Za-z0-9]
                         return s->token;
                     }
 
+[#].*               {
+                        /* ignore comments */
+                    }
+
 {NEWL}              {
                         /* ignore newlines, but keep a line count */
                         ++homer->lineno;
