@@ -4,6 +4,7 @@
 #include "log.h"
 #include "homer.h"
 #include "ast.h"
+#include "symtab.h"
 
         // homer_error("out of memory");
 #define AST_CHECK(x) \

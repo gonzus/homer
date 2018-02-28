@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "util.h"
 #include "ast.h"
+#include "symtab.h"
 #include "homer.h"
 #include "parser.h"
 #include "lexer.h"

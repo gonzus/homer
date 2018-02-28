@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "ast.h"
+#include "symtab.h"
 #include "homer.h"
 #include "parser.h"
 #include "log.h"

@@ -1,5 +1,6 @@
 %{
 #include "ast.h"
+#include "symtab.h"
 #include "homer.h"
 #include "parser.h"
 #include "reentrant.h"
@@ -10,10 +11,7 @@ void yyerror(yyscan_t scanner, Homer* homer, char const *msg);
 %}
 
 %define api.pure full
-%lex-param   {void *scanner}
-%lex-param   {Homer* homer}
-%parse-param {void *scanner}
-%parse-param {Homer* homer}
+%param  {void *scanner} {Homer* homer}
 
 %token-table            /* let's have token names please */
 
