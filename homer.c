@@ -4,13 +4,14 @@
 #include <stdlib.h>
 #include "util.h"
 #include "ast.h"
+#include "homer.h"
 #include "parser.h"
+#include "lexer.h"
 #include "interp.h"
 #include "log.h"
-#include "homer.h"
 
 // Need to refer to this from lexer.l & parser.y
-Homer* homer = 0;
+Homer* homer_global = 0;
 
 static void init_symtab(SymTab* symtab);
 
@@ -40,23 +41,29 @@ int homer_parse(void)
     yy_flex_debug = 1;
 #endif
 
-    homer = homer_build();
-    if (yyparse() == 0) {
+    yyscan_t scanner;
+    yylex_init(&scanner);
+    yyset_in(stdin, scanner);
+
+    homer_global = homer_build();
+    if (yyparse(scanner, homer_global) == 0) {
         homer_run();
     } else {
         fprintf(stderr, "Could not parse input\n");
     }
-    homer_destroy(homer);
-    homer = 0;
+    homer_destroy(homer_global);
+    homer_global = 0;
+
+    yylex_destroy(scanner);
     return 0;
 }
 
 int homer_run(void)
 {
-    LOG(("RUNNING root %p", homer->root));
-    run(homer->root, homer->symtab);
-    ast_free(homer->root);
-    homer->root = 0;
+    LOG(("RUNNING root %p", homer_global->root));
+    run(homer_global->root, homer_global->symtab);
+    ast_free(homer_global->root);
+    homer_global->root = 0;
     return 0;
 }
 
@@ -64,7 +71,7 @@ void homer_error(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    fprintf(stderr, "error on line %d: ", homer->lineno);
+    fprintf(stderr, "error on line %d: ", homer_global->lineno);
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
     va_end(ap);

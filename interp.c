@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "ast.h"
+#include "homer.h"
 #include "parser.h"
 #include "log.h"
-#include "homer.h"
 #include "interp.h"
 
 int run(ASTNode* n, SymTab* symtab)

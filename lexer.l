@@ -1,10 +1,11 @@
 %{
 #include "ast.h"
-#include "parser.h"
 #include "homer.h"
+#include "parser.h"
 %}
 
 %option noyywrap
+%option reentrant bison-bridge
 
 BIN                 [0-1]
 OCT                 [0-7]
@@ -20,27 +21,27 @@ IDREST              [_A-Za-z0-9]
 
 0                   {
                         /* a 0 is 0 in any base */
-                        yylval.iValue = 0;
+                        yylval->iValue = 0;
                         return INTEGER;
                     }
 0b{BIN}+            {
                         /* a binary constant */
-                        yylval.iValue = strtol(yytext + 2, 0, 2);
+                        yylval->iValue = strtol(yytext + 2, 0, 2);
                         return INTEGER;
                     }
 0{OCT}+             {
                         /* an octal constant */
-                        yylval.iValue = strtol(yytext + 1, 0, 8);
+                        yylval->iValue = strtol(yytext + 1, 0, 8);
                         return INTEGER;
                     }
 [1-9]{DEC}*         {
                         /* a decimal (non-zero) constant */
-                        yylval.iValue = strtol(yytext, 0, 10);
+                        yylval->iValue = strtol(yytext, 0, 10);
                         return INTEGER;
                     }
 0x{HEX}+            {
                         /* a hexadecimal constant */
-                        yylval.iValue = strtol(yytext + 2, 0, 16);
+                        yylval->iValue = strtol(yytext + 2, 0, 16);
                         return INTEGER;
                     }
 
@@ -70,8 +71,8 @@ IDREST              [_A-Za-z0-9]
 
 {IDINIT}{IDREST}*   {
                         /* if lookup fails, create it as a VARIABLE */
-                        Symbol* s = symtab_lookup(homer->symtab, yytext, VARIABLE);
-                        yylval.symbol = s;
+                        Symbol* s = symtab_lookup(homer_global->symtab, yytext, VARIABLE);
+                        yylval->symbol = s;
                         return s->token;
                     }
 
@@ -80,7 +81,7 @@ IDREST              [_A-Za-z0-9]
                     }
 {NEWL}              {
                         /* ignore newlines, but keep a line count */
-                        ++homer->lineno;
+                        ++homer_global->lineno;
                     }
 {SPACE}             {
                         /* ignore whitespace */
