@@ -4,6 +4,8 @@
 #include "homer.h"
 %}
 
+%option noyywrap
+
 BIN                 [0-1]
 OCT                 [0-7]
 DEC                 [0-9]
@@ -87,11 +89,3 @@ IDREST              [_A-Za-z0-9]
                         /* anything else is an error */
                         homer_error("invalid character '%c'", yytext[0]);
                     }
-
-%%
-
-int yywrap()
-{
-    // process a single file
-    return 1;
-}
