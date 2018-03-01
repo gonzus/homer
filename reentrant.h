@@ -5,8 +5,9 @@
  * This bullshit is necessary to pass extra arguments to yylex()
  */
 
+
 #define YY_DECL int yylex \
-        (YYSTYPE * yylval_param, void* yyscanner, Homer *homer)
+        (YYSTYPE * yylval_param, yyscan_t yyscanner, Homer *homer)
 
 YY_DECL;
 

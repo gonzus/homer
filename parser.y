@@ -10,8 +10,15 @@
 void yyerror(yyscan_t scanner, Homer* homer, char const *msg);
 %}
 
+%code requires {
+#ifndef YY_TYPEDEF_YY_SCANNER_T
+#define YY_TYPEDEF_YY_SCANNER_T
+typedef void* yyscan_t;
+#endif
+}
+
 %define api.pure full
-%param  {void *scanner} {Homer* homer}
+%param  {yyscan_t scanner} {Homer* homer}
 
 %token-table            /* let's have token names please */
 
