@@ -31,6 +31,14 @@ ASTNode* ast_iden(Symbol* symbol)
     return n;
 }
 
+ASTNode* ast_decl(int token)
+{
+    LOG(("ast_decl(%d)", token));
+    AST_ALLOC(ASTNodeTypeDeclaration);
+    n->decl.token = token;
+    return n;
+}
+
 ASTNode* ast_oper(int oper, int nops, ...)
 {
     LOG(("OPR [%s] with %d operands", token_name(oper), nops));

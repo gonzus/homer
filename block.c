@@ -35,6 +35,9 @@ Block* block_clone(Block* block)
 
 void block_destroy(Block* block)
 {
+    if (!block) {
+        return;
+    }
     LOG(("BLOCK FREE %d", block->size));
     free(block->data);
     free(block);

@@ -70,6 +70,8 @@ IDREST              [_A-Za-z0-9]
 "]"                 return RBRK;
 "="                 return ASS;  // :-)
 ";"                 return SEMI;
+":"                 return COLON;
+","                 return COMMA;
 
 {IDINIT}{IDREST}*   {
                         /* if lookup fails, create it as a VARIABLE */

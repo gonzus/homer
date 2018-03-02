@@ -10,6 +10,33 @@
 
 #define SYMTAB_DEFAULT_SIZE 211
 
+static Symbol* symbol_build(const char* name, int token, Block* block)
+{
+    Symbol* symbol = (Symbol*) malloc(sizeof(Symbol));
+    memset(symbol, 0, sizeof(Symbol));
+    symbol->name = strdup(name);
+    symbol->token = token;
+    symbol->block = block_clone(block);
+    if (symbol->token != VARIABLE) {
+        LOG(("SYMBOL CREATED (%s) [%s] => %p", token_name(token), name, symbol));
+    } else {
+        char wanted[256];
+        block_format(block, wanted);
+        LOG(("SYMBOL CREATED [%s] (%s) => %p", name, wanted, symbol));
+    }
+    return symbol;
+}
+
+static void symbol_destroy(Symbol* symbol)
+{
+    if (!symbol) {
+        return;
+    }
+    block_destroy(symbol->block);
+    free((void*) symbol->name);
+    free((void*) symbol);
+}
+
 SymTab* symtab_build(int size)
 {
     if (size <= 0) {
@@ -27,8 +54,7 @@ void symtab_destroy(SymTab* symtab)
         for (Symbol* s = symtab->table[j]; s != 0; ) {
             Symbol* q = s;
             s = s->next;
-            free((void*) q->name);
-            free((void*) q);
+            symbol_destroy(q);
         }
     }
     free(symtab->table);
@@ -76,19 +102,8 @@ Symbol* symtab_lookup(SymTab* symtab, const char* name, int token, struct Block*
     }
 
     // create it then, at the head of its list
-    s = (Symbol*) malloc(sizeof(Symbol));
-    memset(s, 0, sizeof(Symbol));
-    s->name = strdup(name);
-    s->token = token;
-    s->block = block_clone(block);
+    s = symbol_build(name, token, block);
     s->next = symtab->table[h];
     symtab->table[h] = s;
-    if (s->token != VARIABLE) {
-        LOG(("SYMBOL CREATED (%s) [%s] %d", token_name(token), name, h));
-    } else {
-        char wanted[256];
-        block_format(block, wanted);
-        LOG(("SYMBOL CREATED [%s] %d -> [%s]", name, h, wanted));
-    }
     return s;
 }

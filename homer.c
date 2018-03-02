@@ -27,12 +27,11 @@ Homer* homer_build(void)
 
 void homer_destroy(Homer* homer)
 {
-    block_destroy(homer->block);
     ast_free(homer->root);
     homer->root = 0;
+    block_destroy(homer->block);
     symtab_destroy(homer->symtab);
     free(homer);
-    fflush(stdout);
 }
 
 int homer_parse(Homer* homer)
@@ -81,6 +80,8 @@ static void init_symtab(SymTab* symtab)
         const char* lexeme;
         int token;
     } reserved[] = {
+        { "var"  , VAR   },
+        { "int"  , INT   },
         { "while", WHILE },
         { "if"   , IF    },
         { "else" , ELSE  },

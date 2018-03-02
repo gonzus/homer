@@ -7,6 +7,7 @@ struct Symbol;
 typedef enum {
     ASTNodeTypeConstant,
     ASTNodeTypeIdentifier,
+    ASTNodeTypeDeclaration,
     ASTNodeTypeOperator,
 } ASTNodeEnum;
 
@@ -20,6 +21,11 @@ typedef struct ASTNodeIdentifier {
     struct Symbol* symbol;
 } ASTNodeIdentifier;
 
+/* Declaration AST nodes */
+typedef struct ASTNodeDeclaration {
+    int token; // TODO
+} ASTNodeDeclaration;
+
 /* Operator AST nodes */
 typedef struct ASTNodeOperator {
     int oper;                // Operator
@@ -31,14 +37,16 @@ typedef struct ASTNodeOperator {
 typedef struct ASTNode {
     ASTNodeEnum type;
     union {
-        ASTNodeConstant   cons;
-        ASTNodeIdentifier iden;
-        ASTNodeOperator   oper;
+        ASTNodeConstant    cons;
+        ASTNodeIdentifier  iden;
+        ASTNodeDeclaration decl;
+        ASTNodeOperator    oper;
     };
 } ASTNode;
 
 ASTNode* ast_cons(int value);
 ASTNode* ast_iden(struct Symbol* symbol);
+ASTNode* ast_decl(int token);
 ASTNode* ast_oper(int oper, int nops, ...);
 void ast_free(ASTNode* n);
 

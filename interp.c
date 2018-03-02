@@ -8,7 +8,6 @@
 
 int run(ASTNode* n, SymTab* symtab)
 {
-    LOG(("RUN %p", n));
     if (!n)
         return 0;
 
@@ -21,8 +20,12 @@ int run(ASTNode* n, SymTab* symtab)
             LOG(("RUN identifier %d", n->iden.symbol->value));
             return n->iden.symbol->value;
 
+        case ASTNodeTypeDeclaration:
+            LOG(("RUN declaration %d", n->decl.token));
+            return n->decl.token;
+
         case ASTNodeTypeOperator:
-            LOG(("RUN operator %d", n->oper.oper));
+            LOG(("RUN operator %s", token_name(n->oper.oper)));
             switch (n->oper.oper) {
                 case WHILE:
                     while (run(n->oper.op[0], symtab))

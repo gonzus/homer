@@ -34,8 +34,9 @@ typedef void* yyscan_t;
 
 %token <iValue> INTEGER
 %token <symbol> VARIABLE
+%token VAR INT
 %token WHILE IF PRINT
-%token SEMI ASS
+%token COMMA COLON SEMI ASS
 %token LPAR RPAR
 %token LBRC RBRC
 %token LBRK RBRK
@@ -52,7 +53,7 @@ typedef void* yyscan_t;
 %left MUL DIV
 %nonassoc UMINUS        /* unary minus, highest precedence */
 
-%type <ast> program stmt stmt_list expr
+%type <ast> program stmt stmt_list expr decl var var_list
 
 %%
 
@@ -63,12 +64,22 @@ program
 stmt
     : SEMI                             { $$ = ast_oper(SEMI, 2, 0, 0); }
     | expr SEMI                        { $$ = $1; }
+    | VAR var_list COLON decl SEMI     { $$ = ast_oper(VAR, 2, $2, $4); }
     | PRINT expr SEMI                  { $$ = ast_oper(PRINT, 1, $2); }
-    | VARIABLE ASS expr SEMI           { $$ = ast_oper(ASS, 2, ast_iden($1), $3); }
+    | var ASS expr SEMI                { $$ = ast_oper(ASS, 2, $1, $3); }
     | WHILE LPAR expr RPAR stmt        { $$ = ast_oper(WHILE, 2, $3, $5); }
     | IF LPAR expr RPAR stmt %prec IFX { $$ = ast_oper(IF, 2, $3, $5); }
     | IF LPAR expr RPAR stmt ELSE stmt { $$ = ast_oper(IF, 3, $3, $5, $7); }
     | LBRC {HBN} stmt_list {HBE} RBRC  { $$ = $3; }
+    ;
+
+decl
+    : INT                              { $$ = ast_decl(INT); }
+    ;
+
+var_list
+    : var
+    | var_list COMMA var               { $$ = ast_oper(COMMA, 2, $1, $3); }
     ;
 
 stmt_list
@@ -78,7 +89,7 @@ stmt_list
 
 expr
     : INTEGER                          { $$ = ast_cons($1); }
-    | VARIABLE                         { $$ = ast_iden($1); }
+    | var
     | SUB expr %prec UMINUS            { $$ = ast_oper(UMINUS, 1, $2); }
     | expr ADD expr                    { $$ = ast_oper(ADD, 2, $1, $3); }
     | expr SUB expr                    { $$ = ast_oper(SUB, 2, $1, $3); }
@@ -96,6 +107,9 @@ expr
     | LPAR expr RPAR                   { $$ = $2; }
     ;
 
+var
+    : VARIABLE                         { $$ = ast_iden($1); }
+    ;
 %%
 
 /* these functions are used internally or use something internal */
