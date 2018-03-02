@@ -5,6 +5,7 @@ struct Block;
 
 typedef struct Symbol {
     const char* name;
+    int decl;
     int token;
     int value; // TODO: move to env
     struct Block* block;

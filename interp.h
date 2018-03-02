@@ -2,8 +2,8 @@
 #define INTERP_H_
 
 struct ASTNode;
-struct SymTab;
+struct Homer;
 
-int run(struct ASTNode* node, struct SymTab* symtab);
+int run(struct ASTNode* node, struct Homer* homer);
 
 #endif

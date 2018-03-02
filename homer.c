@@ -58,7 +58,7 @@ int homer_parse(Homer* homer)
 int homer_run(Homer* homer)
 {
     LOG(("RUNNING root %p", homer->root));
-    run(homer->root, homer->symtab);
+    run(homer->root, homer);
     ast_free(homer->root);
     homer->root = 0;
     return 0;
