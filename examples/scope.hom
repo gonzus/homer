@@ -1,0 +1,42 @@
+# test scoping
+
+print 100;
+
+j = 1;
+print j;
+
+if (10 > 5) {
+    k = 1;
+    print k;
+
+    if (10 > 5) {
+        j = 0;
+        print 1-j;
+    }
+    print k;
+    if (10 < 5) {
+        print 0;
+    }
+    print k;
+    if (10 > 5) {
+        m = 1;
+        print m;
+    }
+    print k;
+    if (10 > 5) {
+        print 1-m;
+    }
+}
+
+g = 1;
+print g;
+
+if (10 < 5) {
+    print 0;
+}
+
+# this still hass access to k, although it is out of scope by now... :-(
+print (1-k);
+print 1-j;
+
+print 999;

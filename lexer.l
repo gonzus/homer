@@ -73,7 +73,7 @@ IDREST              [_A-Za-z0-9]
 
 {IDINIT}{IDREST}*   {
                         /* if lookup fails, create it as a VARIABLE */
-                        Symbol* s = symtab_lookup(homer->symtab, yytext, VARIABLE);
+                        Symbol* s = symtab_lookup(homer->symtab, yytext, VARIABLE, homer->block);
                         yylval->symbol = s;
                         return s->token;
                     }

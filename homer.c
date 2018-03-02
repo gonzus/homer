@@ -10,6 +10,7 @@
 #include "lexer.h"
 #include "interp.h"
 #include "log.h"
+#include "block.h"
 
 static void init_symtab(SymTab* symtab);
 
@@ -20,11 +21,13 @@ Homer* homer_build(void)
     homer->lineno = 1;
     homer->symtab = symtab_build(0);
     init_symtab(homer->symtab);
+    homer->block = block_create();
     return homer;
 }
 
 void homer_destroy(Homer* homer)
 {
+    block_destroy(homer->block);
     ast_free(homer->root);
     homer->root = 0;
     symtab_destroy(homer->symtab);
@@ -84,6 +87,6 @@ static void init_symtab(SymTab* symtab)
         { "print", PRINT },
     };
     for (unsigned long j = 0; j < sizeof(reserved) / sizeof(reserved[0]); ++j) {
-        symtab_lookup(symtab, reserved[j].lexeme, reserved[j].token);
+        symtab_lookup(symtab, reserved[j].lexeme, reserved[j].token, 0);
     }
 }

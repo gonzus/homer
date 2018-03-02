@@ -4,7 +4,9 @@
 #include "ast.h"
 #include "log.h"
 #include "homer.h"
+#include "block.h"
 #include "symtab.h"
+#include "parser.h"
 
 #define SYMTAB_DEFAULT_SIZE 211
 
@@ -45,14 +47,21 @@ static unsigned long hash(const char *s)
     return h;
 }
 
-Symbol* symtab_lookup(SymTab* symtab, const char* name, int token)
+Symbol* symtab_lookup(SymTab* symtab, const char* name, int token, struct Block* block)
 {
     Symbol* s = 0;
     int h = hash(name) % symtab->size;
     for (s = symtab->table[h]; s != 0; s = s->next) {
-        if (strcmp(name, s->name) == 0) {
+        if (strcmp(name, s->name) == 0 && block_contains(s->block, block)) {
             // found it!
             LOG(("LOOKUP %p [%s] => %d %s - %p", symtab, name, h, token_name(s->token), s));
+            if (s->token == VARIABLE) {
+                char found[256];
+                block_format(s->block, found);
+                char wanted[256];
+                block_format(block, wanted);
+                printf("FOUND [%s] -> [%s], wanted [%s]\n", name, found, wanted);
+            }
             return s;
         }
     }
@@ -70,8 +79,14 @@ Symbol* symtab_lookup(SymTab* symtab, const char* name, int token)
     memset(s, 0, sizeof(Symbol));
     s->name = strdup(name);
     s->token = token;
+    s->block = block_clone(block);
     s->next = symtab->table[h];
     symtab->table[h] = s;
     LOG(("CREATE %p %s - [%s] => %d %p", symtab, token_name(token), name, h, s));
+    if (s->token == VARIABLE) {
+        char wanted[256];
+        block_format(block, wanted);
+        printf("CREATED [%s] -> [%s]\n", name, wanted);
+    }
     return s;
 }

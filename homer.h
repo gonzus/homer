@@ -8,6 +8,7 @@ typedef struct Homer {
     int lineno;
     struct ASTNode* root;
     struct SymTab* symtab;
+    struct Block* block;
 } Homer;
 
 Homer* homer_build(void);

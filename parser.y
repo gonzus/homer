@@ -1,6 +1,7 @@
 %{
 #include "ast.h"
 #include "symtab.h"
+#include "block.h"
 #include "homer.h"
 #include "parser.h"
 #include "reentrant.h"
@@ -64,7 +65,7 @@ stmt
     | WHILE LPAR expr RPAR stmt        { $$ = ast_oper(WHILE, 2, $3, $5); }
     | IF LPAR expr RPAR stmt %prec IFX { $$ = ast_oper(IF, 2, $3, $5); }
     | IF LPAR expr RPAR stmt ELSE stmt { $$ = ast_oper(IF, 3, $3, $5, $7); }
-    | LBRC stmt_list RBRC              { $$ = $2; }
+    | {block_down(homer->block);} LBRC {block_right(homer->block);} stmt_list {block_left(homer->block);} RBRC   { $$ = $4; }
     ;
 
 stmt_list

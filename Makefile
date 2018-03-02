@@ -17,6 +17,7 @@ C_FILES = \
 	symtab.c \
 	interp.c \
 	log.c \
+	block.c \
 	homer.c \
 	main.c \
 
@@ -91,6 +92,7 @@ ast.o: ast.c
 symtab.o: symtab.c
 interp.o: interp.c parser.h
 log.o: log.c
+block.o: block.c
 homer.o: homer.c parser.h
 
 clean:
