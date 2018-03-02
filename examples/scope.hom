@@ -13,6 +13,7 @@ if (10 > 5) {
         j = 0;
         print 1-j;
     }
+    print 1-j;
     print k;
     if (10 < 5) {
         print 0;

@@ -8,6 +8,9 @@
 #include "lexer.h"
 #include "util.h"
 
+#define HBN block_nest(homer->block);
+#define HBE block_exit(homer->block);
+
 void yyerror(yyscan_t scanner, Homer* homer, char const *msg);
 %}
 
@@ -65,7 +68,7 @@ stmt
     | WHILE LPAR expr RPAR stmt        { $$ = ast_oper(WHILE, 2, $3, $5); }
     | IF LPAR expr RPAR stmt %prec IFX { $$ = ast_oper(IF, 2, $3, $5); }
     | IF LPAR expr RPAR stmt ELSE stmt { $$ = ast_oper(IF, 3, $3, $5, $7); }
-    | {block_down(homer->block);} LBRC {block_right(homer->block);} stmt_list {block_left(homer->block);} RBRC   { $$ = $4; }
+    | LBRC {HBN} stmt_list {HBE} RBRC  { $$ = $3; }
     ;
 
 stmt_list

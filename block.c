@@ -1,13 +1,21 @@
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "log.h"
 #include "block.h"
 
-static int block_print(Block* block);
+#define BLOCK_DEBUG 0
+#define BLOCK_DEFAULT_SIZE 32
 
-Block* block_create(void)
+#if defined(BLOCK_DEBUG) && BLOCK_DEBUG > 0
+static int block_print(Block* block);
+#endif
+
+Block* block_create(int size)
 {
     Block* block = (Block*) malloc(sizeof(Block));
+    block->size = size <= 0 ? BLOCK_DEFAULT_SIZE : size;
+    block->data = (char*) malloc(block->size);
     block_reset(block);
     return block;
 }
@@ -18,40 +26,52 @@ Block* block_clone(Block* block)
         return 0;
     }
     Block* clone = (Block*) malloc(sizeof(Block));
-    memcpy(clone, block, sizeof(Block));
+    clone->size = block->size;
+    clone->next = block->next;
+    clone->data = (char*) malloc(clone->size);
+    memcpy(clone->data, block->data, clone->next);
     return clone;
 }
 
 void block_destroy(Block* block)
 {
+    LOG(("BLOCK FREE %d", block->size));
+    free(block->data);
     free(block);
 }
 
 void block_reset(Block* block)
 {
-    memset(block, 0, sizeof(Block));
-    block->size = 1;
+    block->data[0] = 0;
+    block->next = 1;
 }
 
-void block_down(Block* block)
+void block_nest(Block* block)
 {
-#if 1
-    ++block->value[block->size - 1];
+    ++block->data[block->next - 1];
+
+    if (block->next >= block->size) {
+        int new_size = block->size * 2;
+        LOG(("BLOCK GROW %d -> %d", block->size, new_size));
+        char* new_data = realloc(block->data, new_size);
+        block->data = new_data;
+        block->size = new_size;
+    }
+    ++block->next;
+    block->data[block->next - 1] = 0;
+
+#if defined(BLOCK_DEBUG) && BLOCK_DEBUG > 0
     block_print(block);
 #endif
 }
 
-void block_right(Block* block)
+void block_exit(Block* block)
 {
-    ++block->size;
-    block->value[block->size - 1] = 1;
-    block_print(block);
-}
+    --block->next;
 
-void block_left(Block* block)
-{
-    --block->size;
-    // block_print(block);
+#if defined(BLOCK_DEBUG) && BLOCK_DEBUG > 0
+    block_print(block);
+#endif
 }
 
 int block_contains(Block* parent, Block* child)
@@ -61,23 +81,23 @@ int block_contains(Block* parent, Block* child)
         return 1;
     }
 
-    // parent is more nested than child? it cannot contain it
-    if (parent->size > child->size) {
+    // parent has deeper nesting than child? it cannot contain it
+    if (parent->next > child->next) {
         return 0;
     }
 
     // all elements of parent, except the last one, must be identical to
     // corresponding elements in child
-    int top = parent->size - 1;
+    int top = parent->next - 1;
     for (int j = 0; j < top; ++j) {
-        if (parent->value[j] != child->value[j]) {
+        if (parent->data[j] != child->data[j]) {
             return 0;
         }
     }
 
-    // last element of parent canno be greater than corresponding element in
+    // last element of parent cannot be greater than corresponding element in
     // child
-    if (parent->value[top] > child->value[top]) {
+    if (parent->data[top] > child->data[top]) {
         return 0;
     }
 
@@ -88,16 +108,17 @@ int block_contains(Block* parent, Block* child)
 int block_format(Block* block, char* buf)
 {
     int p = 0;
-    for (int j = 0; block && j < block->size; ++j) {
+    for (int j = 0; block && j < block->next; ++j) {
         if (p > 0) {
-            *(buf + p++) = '.';
+            buf[p++] = '.';
         }
-        p += sprintf(buf + p, "%d", block->value[j]);
+        p += sprintf(buf + p, "%d", block->data[j]);
     }
-    *(buf + p) = '\0';
+    buf[p] = '\0';
     return p;
 }
 
+#if defined(BLOCK_DEBUG) && BLOCK_DEBUG > 0
 static int block_print(Block* block)
 {
     char buf[256];
@@ -105,3 +126,4 @@ static int block_print(Block* block)
     printf("B [%s]\n", buf);
     return 0;
 }
+#endif

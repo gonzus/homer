@@ -54,20 +54,21 @@ Symbol* symtab_lookup(SymTab* symtab, const char* name, int token, struct Block*
     for (s = symtab->table[h]; s != 0; s = s->next) {
         if (strcmp(name, s->name) == 0 && block_contains(s->block, block)) {
             // found it!
-            LOG(("LOOKUP %p [%s] => %d %s - %p", symtab, name, h, token_name(s->token), s));
-            if (s->token == VARIABLE) {
+            if (s->token != VARIABLE) {
+                LOG(("SYMBOL FOUND (%s) [%s] %d", token_name(s->token), name, h));
+            } else {
                 char found[256];
                 block_format(s->block, found);
                 char wanted[256];
                 block_format(block, wanted);
-                printf("FOUND [%s] -> [%s], wanted [%s]\n", name, found, wanted);
+                LOG(("SYMBOL FOUND [%s] %d -> [%s] / [%s]", name, h, found, wanted));
             }
             return s;
         }
     }
 
     // not there...
-    LOG(("LOOKUP %p [%s] => %d NIL", symtab, name, h));
+    LOG(("SYMBOL NOT FOUND [%s] %d", name, h));
 
     if (!token) {
         // ... and we were not asked to create it
@@ -82,11 +83,12 @@ Symbol* symtab_lookup(SymTab* symtab, const char* name, int token, struct Block*
     s->block = block_clone(block);
     s->next = symtab->table[h];
     symtab->table[h] = s;
-    LOG(("CREATE %p %s - [%s] => %d %p", symtab, token_name(token), name, h, s));
-    if (s->token == VARIABLE) {
+    if (s->token != VARIABLE) {
+        LOG(("SYMBOL CREATED (%s) [%s] %d", token_name(token), name, h));
+    } else {
         char wanted[256];
         block_format(block, wanted);
-        printf("CREATED [%s] -> [%s]\n", name, wanted);
+        LOG(("SYMBOL CREATED [%s] %d -> [%s]", name, h, wanted));
     }
     return s;
 }

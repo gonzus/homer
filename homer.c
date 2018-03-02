@@ -21,7 +21,7 @@ Homer* homer_build(void)
     homer->lineno = 1;
     homer->symtab = symtab_build(0);
     init_symtab(homer->symtab);
-    homer->block = block_create();
+    homer->block = block_create(0);
     return homer;
 }
 
