@@ -51,7 +51,7 @@ ASTNode* ast_decl(int token);
 ASTNode* ast_oper(int oper, int nops, ...);
 void ast_free(ASTNode* n);
 
-ASTNode* var_decl(struct Homer* homer, const char* var);
-ASTNode* var_use(struct Homer* homer, const char* var);
+ASTNode* var_decl(struct Homer* homer, char* var);
+ASTNode* var_use(struct Homer* homer, char* var);
 
 #endif

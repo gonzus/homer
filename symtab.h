@@ -4,7 +4,7 @@
 struct Block;
 
 typedef struct Symbol {
-    const char* name;
+    char* name;
     int token;
     int value; // TODO: move to env
     struct Block* block;

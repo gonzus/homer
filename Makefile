@@ -17,6 +17,7 @@ C_FILES = \
 	symtab.c \
 	interp.c \
 	log.c \
+	mem.c \
 	block.c \
 	homer.c \
 	main.c \
@@ -28,6 +29,7 @@ C_FILES = \
 
 # debug homer
 # CPPFLAGS += -DHOMER_LOG
+CPPFLAGS += -DMEM_CHECK=1
 
 
 ###################################################
@@ -92,6 +94,7 @@ ast.o: ast.c
 symtab.o: symtab.c
 interp.o: interp.c parser.h
 log.o: log.c
+mem.o: mem.c
 block.o: block.c
 homer.o: homer.c parser.h
 

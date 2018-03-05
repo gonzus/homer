@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "mem.h"
 #include "ast.h"
 #include "log.h"
 #include "homer.h"
@@ -12,9 +13,10 @@
 
 static Symbol* symbol_build(const char* name, int token, Block* block)
 {
-    Symbol* symbol = (Symbol*) malloc(sizeof(Symbol));
+    Symbol* symbol;
+    MEM_ALLOC(symbol, Symbol*, sizeof(Symbol));
     memset(symbol, 0, sizeof(Symbol));
-    symbol->name = strdup(name);
+    MEM_STRDUP(symbol->name, name, -1);
     symbol->token = token;
     symbol->block = block_clone(block);
     if (symbol->token != VARIABLE) {
@@ -33,8 +35,8 @@ static void symbol_destroy(Symbol* symbol)
         return;
     }
     block_destroy(symbol->block);
-    free((void*) symbol->name);
-    free((void*) symbol);
+    MEM_FREE(symbol->name, char*, -1);
+    MEM_FREE(symbol, Symbol*, sizeof(Symbol));
 }
 
 SymTab* symtab_build(int size)
@@ -42,8 +44,10 @@ SymTab* symtab_build(int size)
     if (size <= 0) {
         size = SYMTAB_DEFAULT_SIZE;
     }
-    SymTab* symtab = (SymTab*) malloc(sizeof(SymTab));
-    symtab->table = (Symbol**) calloc(size, sizeof(Symbol*));
+    SymTab* symtab;
+    MEM_ALLOC(symtab, SymTab*, sizeof(SymTab));
+    MEM_ALLOC(symtab->table, Symbol**, size * sizeof(Symbol*));
+    memset(symtab->table, 0, size * sizeof(Symbol*));
     symtab->size = size;
     return symtab;
 }
@@ -57,7 +61,8 @@ void symtab_destroy(SymTab* symtab)
             symbol_destroy(q);
         }
     }
-    free(symtab->table);
+    MEM_FREE(symtab->table, Symbol**, symtab->size * sizeof(Symbol*));
+    MEM_FREE(symtab, SymTab*, sizeof(SymTab));
 }
 
 // djb2 by Dan Bernstein - http://www.cse.yorku.ca/~oz/hash.html

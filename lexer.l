@@ -1,5 +1,6 @@
 %{
 #include <ctype.h>
+#include "mem.h"
 #include "ast.h"
 #include "symtab.h"
 #include "homer.h"
@@ -64,7 +65,7 @@ IDREST              [_A-Za-z0-9]
 "print"             { return PRINT; }
 
 {IDINIT}{IDREST}*   {
-                        yylval->sValue = strdup(yytext);
+                        MEM_STRDUP(yylval->sValue, yytext, -1);
                         return VARIABLE;
                     }
 

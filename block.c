@@ -1,6 +1,7 @@
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "mem.h"
 #include "log.h"
 #include "block.h"
 
@@ -13,9 +14,10 @@ static int block_print(Block* block);
 
 Block* block_create(int size)
 {
-    Block* block = (Block*) malloc(sizeof(Block));
+    Block* block;
+    MEM_ALLOC(block, Block*, sizeof(Block));
     block->size = size <= 0 ? BLOCK_DEFAULT_SIZE : size;
-    block->data = (char*) malloc(block->size);
+    MEM_ALLOC(block->data, char*, block->size);
     block_reset(block);
     return block;
 }
@@ -25,10 +27,11 @@ Block* block_clone(Block* block)
     if (!block) {
         return 0;
     }
-    Block* clone = (Block*) malloc(sizeof(Block));
+    Block* clone;
+    MEM_ALLOC(clone, Block*, sizeof(Block));
     clone->size = block->size;
     clone->next = block->next;
-    clone->data = (char*) malloc(clone->size);
+    MEM_ALLOC(clone->data, char*, clone->size);
     memcpy(clone->data, block->data, clone->next);
     return clone;
 }
@@ -38,9 +41,8 @@ void block_destroy(Block* block)
     if (!block) {
         return;
     }
-    LOG(("BLOCK FREE %d", block->size));
-    free(block->data);
-    free(block);
+    MEM_FREE(block->data, char*, block->size);
+    MEM_FREE(block, Block*, sizeof(Block));
 }
 
 void block_reset(Block* block)
@@ -55,9 +57,7 @@ void block_nest(Block* block)
 
     if (block->next >= block->size) {
         int new_size = block->size * 2;
-        LOG(("BLOCK GROW %d -> %d", block->size, new_size));
-        char* new_data = realloc(block->data, new_size);
-        block->data = new_data;
+        MEM_REALLOC(block->data, char*, block->size, new_size);
         block->size = new_size;
     }
     ++block->next;

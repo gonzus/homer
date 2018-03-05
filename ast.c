@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "log.h"
+#include "mem.h"
 #include "homer.h"
 #include "ast.h"
 #include "symtab.h"
@@ -13,7 +14,8 @@
         return 0; \
     }
 #define AST_ALLOC(t) \
-    ASTNode* n = malloc(sizeof(ASTNode)); \
+    ASTNode* n; \
+    MEM_ALLOC(n, ASTNode*, sizeof(ASTNode)); \
     AST_CHECK(n); \
     n->type = (t)
 
@@ -46,7 +48,7 @@ ASTNode* ast_oper(int oper, int nops, ...)
 
     AST_ALLOC(ASTNodeTypeOperator);
 
-    n->oper.op = malloc(nops * sizeof(ASTNode));
+    MEM_ALLOC(n->oper.op, ASTNode**, nops * sizeof(ASTNode));
     AST_CHECK(n->oper.op);
 
     n->oper.oper = oper;
@@ -72,28 +74,34 @@ void ast_free(ASTNode* n)
     if (n->type == ASTNodeTypeOperator) {
         for(int j = 0; j < n->oper.nops; j++)
             ast_free(n->oper.op[j]);
-        free(n->oper.op);
+        MEM_FREE(n->oper.op, ASTNode**, n->oper.nops * sizeof(ASTNode));
     }
-    free(n);
+    MEM_FREE(n, ASTNode*, sizeof(ASTNode));
 }
 
-ASTNode* var_decl(Homer* homer, const char* var)
+ASTNode* var_decl(Homer* homer, char* var)
 {
+    ASTNode* n = 0;
     Symbol* s = symtab_lookup(homer->symtab, var, homer->block, 1);
     if (s) {
         homer_error(homer, "variable %s already declared in this block", var);
-        return 0;
+    } else {
+        s = symtab_create(homer->symtab, var, homer->block, VARIABLE);
+        n = ast_iden(s);
     }
-    s = symtab_create(homer->symtab, var, homer->block, VARIABLE);
-    return ast_iden(s);
+    MEM_FREE(var, char*, -1);
+    return n;
 }
 
-ASTNode* var_use(Homer* homer, const char* var)
+ASTNode* var_use(Homer* homer, char* var)
 {
+    ASTNode* n = 0;
     Symbol* s = symtab_lookup(homer->symtab, var, homer->block, 0);
     if (!s) {
         homer_error(homer, "undeclared variable %s", var);
-        return 0;
+    } else {
+        n = ast_iden(s);
     }
-    return ast_iden(s);
+    MEM_FREE(var, char*, -1);
+    return n;
 }
