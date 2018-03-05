@@ -77,34 +77,60 @@ void block_exit(Block* block)
 #endif
 }
 
-int block_contains(Block* parent, Block* child)
+int block_equals(Block* b1, Block* b2)
 {
-    // no parent or no child? assumes it is contained
-    if (!parent || !child) {
+    // both are identical or null? good!
+    if ((b1 == b2) || (!b1 && !b2)) {
         return 1;
     }
+    // only one is null? bad!
+    if (!b1 || !b2) {
+        return 0;
+    }
+    // both have different nesting? bad!
+    if (b1->next != b2->next) {
+        return 0;
+    }
+    // all elements must be identical
+    for (int j = 0; j < b1->next; ++j) {
+        if (b1->data[j] != b2->data[j]) {
+            return 0;
+        }
+    }
+    return 1;
+}
 
-    // parent has deeper nesting than child? it cannot contain it
-    if (parent->next > child->next) {
+int block_contains(Block* b1, Block* b2)
+{
+    // both are identical or null? good!
+    if ((b1 == b2) || (!b1 && !b2)) {
+        return 1;
+    }
+    // only one is null? bad!
+    if (!b1 || !b2) {
+        return 0;
+    }
+    // b1 has deeper nesting than b2? it cannot contain it
+    if (b1->next > b2->next) {
         return 0;
     }
 
-    // all elements of parent, except the last one, must be identical to
-    // corresponding elements in child
-    int top = parent->next - 1;
+    // all elements of b1, except the last one, must be identical to
+    // corresponding elements in b2
+    int top = b1->next - 1;
     for (int j = 0; j < top; ++j) {
-        if (parent->data[j] != child->data[j]) {
+        if (b1->data[j] != b2->data[j]) {
             return 0;
         }
     }
 
-    // last element of parent cannot be greater than corresponding element in
-    // child
-    if (parent->data[top] > child->data[top]) {
+    // last element of b1 cannot be greater than corresponding element in
+    // b2
+    if (b1->data[top] > b2->data[top]) {
         return 0;
     }
 
-    // yes, parent contains child
+    // yes, b1 contains b2
     return 1;
 }
 

@@ -5,6 +5,7 @@
 #include "homer.h"
 #include "ast.h"
 #include "symtab.h"
+#include "parser.h"
 
         // homer_error("out of memory");
 #define AST_CHECK(x) \
@@ -74,4 +75,25 @@ void ast_free(ASTNode* n)
         free(n->oper.op);
     }
     free(n);
+}
+
+ASTNode* var_decl(Homer* homer, const char* var)
+{
+    Symbol* s = symtab_lookup(homer->symtab, var, homer->block, 1);
+    if (s) {
+        homer_error(homer, "variable %s already declared in this block", var);
+        return 0;
+    }
+    s = symtab_create(homer->symtab, var, homer->block, VARIABLE);
+    return ast_iden(s);
+}
+
+ASTNode* var_use(Homer* homer, const char* var)
+{
+    Symbol* s = symtab_lookup(homer->symtab, var, homer->block, 0);
+    if (!s) {
+        homer_error(homer, "undeclared variable %s", var);
+        return 0;
+    }
+    return ast_iden(s);
 }

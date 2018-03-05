@@ -28,12 +28,13 @@ typedef void* yyscan_t;
 
 %union {                /* A token returned from the lexer can be: */
   int iValue;           /*   integer value                 */
+  char* sValue;         /*   string value                  */
   Symbol* symbol;       /*   pointer to symbol table entry */
   ASTNode* ast;         /*   pointer to AST node           */
 }
 
 %token <iValue> INTEGER
-%token <symbol> VARIABLE
+%token <sValue> VARIABLE
 %token VAR INT
 %token WHILE IF PRINT
 %token COMMA COLON SEMI ASS
@@ -53,7 +54,7 @@ typedef void* yyscan_t;
 %left MUL DIV
 %nonassoc UMINUS        /* unary minus, highest precedence */
 
-%type <ast> program stmt stmt_list expr decl var var_list
+%type <ast> program stmt stmt_list expr decl var_list
 
 %%
 
@@ -66,7 +67,7 @@ stmt
     | expr SEMI                        { $$ = $1; }
     | VAR var_list COLON decl SEMI     { $$ = ast_oper(VAR, 2, $2, $4); }
     | PRINT expr SEMI                  { $$ = ast_oper(PRINT, 1, $2); }
-    | var ASS expr SEMI                { $$ = ast_oper(ASS, 2, $1, $3); }
+    | VARIABLE ASS expr SEMI           { $$ = ast_oper(ASS, 2, var_use(homer, $1), $3); }
     | WHILE LPAR expr RPAR stmt        { $$ = ast_oper(WHILE, 2, $3, $5); }
     | IF LPAR expr RPAR stmt %prec IFX { $$ = ast_oper(IF, 2, $3, $5); }
     | IF LPAR expr RPAR stmt ELSE stmt { $$ = ast_oper(IF, 3, $3, $5, $7); }
@@ -78,8 +79,8 @@ decl
     ;
 
 var_list
-    : var
-    | var_list COMMA var               { $$ = ast_oper(COMMA, 2, $1, $3); }
+    : VARIABLE                         { $$ = var_decl(homer, $1); }
+    | var_list COMMA VARIABLE          { $$ = ast_oper(COMMA, 2, $1, var_decl(homer, $3)); }
     ;
 
 stmt_list
@@ -89,7 +90,7 @@ stmt_list
 
 expr
     : INTEGER                          { $$ = ast_cons($1); }
-    | var
+    | VARIABLE                         { $$ = var_use(homer, $1); }
     | SUB expr %prec UMINUS            { $$ = ast_oper(UMINUS, 1, $2); }
     | expr ADD expr                    { $$ = ast_oper(ADD, 2, $1, $3); }
     | expr SUB expr                    { $$ = ast_oper(SUB, 2, $1, $3); }
@@ -105,10 +106,6 @@ expr
     | expr LOR expr                    { $$ = ast_oper(LOR, 2, $1, $3); }
     | LNOT expr                        { $$ = ast_oper(LNOT, 1, $2); }
     | LPAR expr RPAR                   { $$ = $2; }
-    ;
-
-var
-    : VARIABLE                         { $$ = ast_iden($1); }
     ;
 %%
 

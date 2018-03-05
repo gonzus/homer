@@ -12,15 +12,12 @@
 #include "log.h"
 #include "block.h"
 
-static void init_symtab(SymTab* symtab);
-
 Homer* homer_build(void)
 {
     Homer* homer = (Homer*) malloc(sizeof(Homer));
     memset(homer, 0, sizeof(Homer));
     homer->lineno = 1;
     homer->symtab = symtab_build(0);
-    init_symtab(homer->symtab);
     homer->block = block_create(0);
     return homer;
 }
@@ -72,22 +69,4 @@ void homer_error(Homer* homer, const char *fmt, ...)
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
     va_end(ap);
-}
-
-static void init_symtab(SymTab* symtab)
-{
-    static struct Reserved {
-        const char* lexeme;
-        int token;
-    } reserved[] = {
-        { "var"  , VAR   },
-        { "int"  , INT   },
-        { "while", WHILE },
-        { "if"   , IF    },
-        { "else" , ELSE  },
-        { "print", PRINT },
-    };
-    for (unsigned long j = 0; j < sizeof(reserved) / sizeof(reserved[0]); ++j) {
-        symtab_lookup(symtab, reserved[j].lexeme, reserved[j].token, 0);
-    }
 }

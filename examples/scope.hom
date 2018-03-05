@@ -2,42 +2,48 @@
 
 print 100;
 
+var j: int;
 j = 1;
 print j;
 
 if (10 > 5) {
+    var k: int;
     k = 1;
     print k;
 
     if (10 > 5) {
+        var j: int;
         j = 0;
         print 1-j;
     }
-    print 1-j;
+    print j;
     print k;
     if (10 < 5) {
         print 0;
     }
     print k;
     if (10 > 5) {
-        m = 1;
-        print m;
+        var m: int;
+        m = 5;
+        # var m: int;
     }
     print k;
-    if (10 > 5) {
-        print 1-m;
-    }
 }
 
+print j;
+
+var g: int;
 g = 1;
 print g;
 
 if (10 < 5) {
     print 0;
 }
+if (10 > 5) {
+    j = 0;
+}
 
-# this still hass access to k, although it is out of scope by now... :-(
-print (1-k);
+# print (1-k);
 print 1-j;
 
 print 999;

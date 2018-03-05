@@ -56,11 +56,16 @@ IDREST              [_A-Za-z0-9]
 ":"                 return COLON;
 ","                 return COMMA;
 
+"var"               { return VAR;   }
+"int"               { return INT;   }
+"while"             { return WHILE; }
+"if"                { return IF;    }
+"else"              { return ELSE;  }
+"print"             { return PRINT; }
+
 {IDINIT}{IDREST}*   {
-                        /* if lookup fails, create it as a VARIABLE */
-                        Symbol* s = symtab_lookup(homer->symtab, yytext, VARIABLE, homer->block);
-                        yylval->symbol = s;
-                        return s->token;
+                        yylval->sValue = strdup(yytext);
+                        return VARIABLE;
                     }
 
 [#].*               { /* ignore comments */ }

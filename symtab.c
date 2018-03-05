@@ -73,36 +73,40 @@ static unsigned long hash(const char *s)
     return h;
 }
 
-Symbol* symtab_lookup(SymTab* symtab, const char* name, int token, struct Block* block)
+Symbol* symtab_lookup(SymTab* symtab, const char* name, struct Block* block, int local)
 {
     Symbol* s = 0;
     int h = hash(name) % symtab->size;
     for (s = symtab->table[h]; s != 0; s = s->next) {
-        if (strcmp(name, s->name) == 0 && block_contains(s->block, block)) {
-            // found it!
-            if (s->token != VARIABLE) {
-                LOG(("SYMBOL FOUND (%s) [%s] %d", token_name(s->token), name, h));
-            } else {
-                char found[256];
-                block_format(s->block, found);
-                char wanted[256];
-                block_format(block, wanted);
-                LOG(("SYMBOL FOUND [%s] %d -> [%s] / [%s]", name, h, found, wanted));
-            }
-            return s;
+        if (strcmp(name, s->name) != 0) {
+            continue;
         }
+        int contained = local ? block_equals(s->block, block) : block_contains(s->block, block);
+        if (!contained) {
+            continue;
+        }
+        // found it!
+        if (s->token != VARIABLE) {
+            LOG(("SYMBOL FOUND (%s) [%s] %d", token_name(s->token), name, h));
+        } else {
+            char found[256];
+            block_format(s->block, found);
+            char wanted[256];
+            block_format(block, wanted);
+            LOG(("SYMBOL FOUND [%s] %d -> [%s] / [%s]", name, h, found, wanted));
+        }
+        return s;
     }
 
     // not there...
     LOG(("SYMBOL NOT FOUND [%s] %d", name, h));
+    return 0;
+}
 
-    if (!token) {
-        // ... and we were not asked to create it
-        return 0;
-    }
-
-    // create it then, at the head of its list
-    s = symbol_build(name, token, block);
+Symbol* symtab_create(SymTab* symtab, const char* name, struct Block* block, int token)
+{
+    int h = hash(name) % symtab->size;
+    Symbol* s = symbol_build(name, token, block);
     s->next = symtab->table[h];
     symtab->table[h] = s;
     return s;

@@ -6,25 +6,6 @@
 #include "log.h"
 #include "interp.h"
 
-static int mark_declared(ASTNode* n)
-{
-    switch (n->type) {
-        case ASTNodeTypeIdentifier:
-            n->iden.symbol->decl = 1;
-            break;
-
-        case ASTNodeTypeOperator:
-            switch (n->oper.oper) {
-                case COMMA:
-                    // set all members of op 2 to declared
-                    mark_declared(n->oper.op[0]);
-                    mark_declared(n->oper.op[1]);
-                    break;
-            }
-    }
-    return 0;
-}
-
 int run(ASTNode* n, Homer* homer)
 {
     if (!n)
@@ -37,9 +18,6 @@ int run(ASTNode* n, Homer* homer)
 
         case ASTNodeTypeIdentifier:
             LOG(("RUN identifier %d", n->iden.symbol->value));
-            if (!n->iden.symbol->decl) {
-                homer_error(homer, "undeclared variable %s", n->iden.symbol->name);
-            }
             return n->iden.symbol->value;
 
         case ASTNodeTypeDeclaration:
@@ -50,8 +28,6 @@ int run(ASTNode* n, Homer* homer)
             LOG(("RUN operator %s", token_name(n->oper.oper)));
             switch (n->oper.oper) {
                 case VAR:
-                    // set all members of op 2 to declared
-                    mark_declared(n->oper.op[0]);
                     return 0;
 
                 case WHILE:

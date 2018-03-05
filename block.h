@@ -20,8 +20,11 @@ void block_nest(Block* block);
 // Update a block so that it exits a block
 void block_exit(Block* block);
 
-// Return true if block parent contains block child
-int block_contains(Block* parent, Block* child);
+// Return true if block b1 is the same as block b2
+int block_equals(Block* b1, Block* b2);
+
+// Return true if block b1 contains block b2
+int block_contains(Block* b1, Block* b2);
 
 // Format a block for printing
 int block_format(Block* block, char* buf);

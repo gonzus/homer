@@ -1,6 +1,7 @@
 #ifndef AST_H_
 #define AST_H_
 
+struct Homer;
 struct Symbol;
 
 /* Possible types of AST node */
@@ -49,5 +50,8 @@ ASTNode* ast_iden(struct Symbol* symbol);
 ASTNode* ast_decl(int token);
 ASTNode* ast_oper(int oper, int nops, ...);
 void ast_free(ASTNode* n);
+
+ASTNode* var_decl(struct Homer* homer, const char* var);
+ASTNode* var_use(struct Homer* homer, const char* var);
 
 #endif

@@ -5,7 +5,6 @@ struct Block;
 
 typedef struct Symbol {
     const char* name;
-    int decl;
     int token;
     int value; // TODO: move to env
     struct Block* block;
@@ -20,6 +19,8 @@ typedef struct SymTab {
 SymTab* symtab_build(int size);
 void symtab_destroy(SymTab* symtab);
 
-Symbol* symtab_lookup(SymTab* symtab, const char* name, int token, struct Block* block);
+Symbol* symtab_lookup(SymTab* symtab, const char* name, struct Block* block, int local);
+
+Symbol* symtab_create(SymTab* symtab, const char* name, struct Block* block, int token);
 
 #endif
