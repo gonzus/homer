@@ -31,7 +31,7 @@ void homer_destroy(Homer* homer)
     free(homer);
 }
 
-int homer_parse(Homer* homer)
+int homer_parse(Homer* homer, FILE* fp)
 {
 #if 0
     extern int yy_flex_debug;
@@ -40,12 +40,12 @@ int homer_parse(Homer* homer)
 
     yyscan_t scanner;
     yylex_init(&scanner);
-    yyset_in(stdin, scanner);
+    yyset_in(fp, scanner);
 
     if (yyparse(scanner, homer) == 0) {
         homer_run(homer);
     } else {
-        fprintf(stderr, "Could not parse input\n");
+        fprintf(stderr, "Could not parse input file\n");
     }
 
     yylex_destroy(scanner);
