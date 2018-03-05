@@ -1,5 +1,5 @@
-count = 0;
-while(count < 0b1011) {
+var count: int;
+while(count < 0b10_11) {
   count = count + 1;
   print(count);
 }

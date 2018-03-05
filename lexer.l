@@ -1,18 +1,21 @@
 %{
+#include <ctype.h>
 #include "ast.h"
 #include "symtab.h"
 #include "homer.h"
 #include "parser.h"
 #include "reentrant.h"
+
+static long parse_integer(const char* s, int base);
 %}
 
 %option noyywrap
 %option reentrant bison-bridge
 
-BIN                 [0-1]
-OCT                 [0-7]
-DEC                 [0-9]
-HEX                 [0-9a-fA-F]
+BIN                 [_0-1]
+OCT                 [_0-7]
+DEC                 [_0-9]
+HEX                 [_0-9a-fA-F]
 SPACE               [ \t]
 NEWL                [\n]
 
@@ -21,31 +24,11 @@ IDREST              [_A-Za-z0-9]
 
 %%
 
-0                   {
-                        /* a 0 is 0 in any base */
-                        yylval->iValue = 0;
-                        return INTEGER;
-                    }
-0b{BIN}+            {
-                        /* a binary constant */
-                        yylval->iValue = strtol(yytext + 2, 0, 2);
-                        return INTEGER;
-                    }
-0{OCT}+             {
-                        /* an octal constant */
-                        yylval->iValue = strtol(yytext + 1, 0, 8);
-                        return INTEGER;
-                    }
-[1-9]{DEC}*         {
-                        /* a decimal (non-zero) constant */
-                        yylval->iValue = strtol(yytext, 0, 10);
-                        return INTEGER;
-                    }
-0x{HEX}+            {
-                        /* a hexadecimal constant */
-                        yylval->iValue = strtol(yytext + 2, 0, 16);
-                        return INTEGER;
-                    }
+0                   { yylval->iValue = 0; return INTEGER; }
+0b{BIN}+            { yylval->iValue = parse_integer(yytext + 2,  2); return INTEGER; }
+0{OCT}+             { yylval->iValue = parse_integer(yytext + 1,  8); return INTEGER; }
+[1-9]{DEC}*         { yylval->iValue = parse_integer(yytext + 0, 10); return INTEGER; }
+0x{HEX}+            { yylval->iValue = parse_integer(yytext + 2, 16); return INTEGER; }
 
 "&&"                return LAND;
 "||"                return LOR;
@@ -80,17 +63,22 @@ IDREST              [_A-Za-z0-9]
                         return s->token;
                     }
 
-[#].*               {
-                        /* ignore comments */
-                    }
-{NEWL}              {
-                        /* ignore newlines, but keep a line count */
-                        ++homer->lineno;
-                    }
-{SPACE}             {
-                        /* ignore whitespace */
-                    }
-.                   {
-                        /* anything else is an error */
-                        homer_error(homer, "invalid character '%c'", yytext[0]);
-                    }
+[#].*               { /* ignore comments */ }
+{NEWL}              { /* ignore newlines, keep a line count */ ++homer->lineno; }
+{SPACE}             { /* ignore whitespace */ }
+.                   { homer_error(homer, "invalid character '%c'", yytext[0]); }
+
+%%
+
+static long parse_integer(const char* s, int base)
+{
+    char tmp[64];
+    int k = 0;
+    for (int j = 0; s[j] != '\0'; ++j) {
+        if (isdigit(s[j])) {
+            tmp[k++] = s[j];
+        }
+    }
+    tmp[k] = '\0';
+    return strtol(tmp, 0,  base);
+}
