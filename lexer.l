@@ -8,6 +8,7 @@
 #include "reentrant.h"
 
 static long parse_integer(const char* s, int base);
+static double parse_float(const char* s);
 %}
 
 %option reentrant bison-bridge
@@ -32,6 +33,8 @@ IDREST              [_A-Za-z0-9]
 0{OCT}+             { yylval->iValue = parse_integer(yytext + 1,  8); return INTEGER; }
 [1-9]{DEC}*         { yylval->iValue = parse_integer(yytext + 0, 10); return INTEGER; }
 0[xX]{HEX}+         { yylval->iValue = parse_integer(yytext + 2, 16); return INTEGER; }
+
+[1-9]{DEC}*\.{DEC}* { yylval->fValue = parse_float(yytext + 0); return FLOAT; }
 
 "&&"                return LAND;
 "||"                return LOR;
@@ -90,4 +93,18 @@ static long parse_integer(const char* s, int base)
     }
     tmp[k] = '\0';
     return strtol(tmp, 0,  base);
+}
+
+static double parse_float(const char* s)
+{
+    char tmp[100];
+    int k = 0;
+    for (int j = 0; s[j] != '\0'; ++j) {
+        if (s[j] == '_') {
+            continue;
+        }
+        tmp[k++] = s[j];
+    }
+    tmp[k] = '\0';
+    return strtod(tmp, 0);
 }

@@ -27,13 +27,15 @@ typedef void* yyscan_t;
 %token-table            /* let's have token names please */
 
 %union {                /* A token returned from the lexer can be: */
-  int iValue;           /*   integer value                 */
+  long iValue;          /*   integer value                 */
+  double fValue;        /*   floating point value          */
   char* sValue;         /*   string value                  */
   Symbol* symbol;       /*   pointer to symbol table entry */
   ASTNode* ast;         /*   pointer to AST node           */
 }
 
 %token <iValue> INTEGER
+%token <fValue> FLOAT
 %token <sValue> VARIABLE
 %token VAR INT
 %token WHILE IF PRINT

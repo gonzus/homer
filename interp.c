@@ -12,16 +12,21 @@ int run(ASTNode* n, Homer* homer)
         return 0;
 
     switch (n->type) {
-        case ASTNodeTypeConstant:
-            LOG(("RUN constant %d", n->cons.value));
-            return n->cons.value;
+        case ASTNodeTypeConstantInteger:
+            LOG(("RUN cint %ld", n->cint.value));
+            return n->cint.value;
+
+        case ASTNodeTypeConstantDouble:
+            LOG(("RUN cdouble %lf", n->cdouble.value));
+            // TODO: this just won't do...
+            return n->cdouble.value;
 
         case ASTNodeTypeIdentifier:
-            LOG(("RUN identifier %d", n->iden.symbol->value));
+            LOG(("RUN identifier %s", n->iden.symbol->name));
             return n->iden.symbol->value;
 
         case ASTNodeTypeDeclaration:
-            LOG(("RUN declaration %d", n->decl.token));
+            LOG(("RUN declaration %s", token_name(n->decl.token)));
             return n->decl.token;
 
         case ASTNodeTypeOperator:
@@ -96,7 +101,7 @@ int run(ASTNode* n, Homer* homer)
                     return ! run(n->oper.op[0], homer);
 
                 default:
-                    // homer_error("unknown operand %d - %s", n->oper.oper, token_name(n->oper.oper));
+                    homer_error(homer, "unknown operand %d - %s", n->oper.oper, token_name(n->oper.oper));
                     return 0;
             }
     }

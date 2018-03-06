@@ -6,16 +6,20 @@ struct Symbol;
 
 /* Possible types of AST node */
 typedef enum {
-    ASTNodeTypeConstant,
+    ASTNodeTypeConstantInteger,
+    ASTNodeTypeConstantDouble,
     ASTNodeTypeIdentifier,
     ASTNodeTypeDeclaration,
     ASTNodeTypeOperator,
 } ASTNodeEnum;
 
 /* Constant AST nodes */
-typedef struct ASTNodeConstant {
-    int value;
-} ASTNodeConstant;
+typedef struct ASTNodeConstantInteger {
+    long value;
+} ASTNodeConstantInteger;
+typedef struct ASTNodeConstantDouble {
+    double value;
+} ASTNodeConstantDouble;
 
 /* Identifier AST nodes */
 typedef struct ASTNodeIdentifier {
@@ -29,8 +33,8 @@ typedef struct ASTNodeDeclaration {
 
 /* Operator AST nodes */
 typedef struct ASTNodeOperator {
-    int oper;                // Operator
-    int nops;                // Number of operants
+    int oper;            // Operator
+    int nops;            // Number of operants
     struct ASTNode** op; // Operands
 } ASTNodeOperator;
 
@@ -38,14 +42,16 @@ typedef struct ASTNodeOperator {
 typedef struct ASTNode {
     ASTNodeEnum type;
     union {
-        ASTNodeConstant    cons;
-        ASTNodeIdentifier  iden;
-        ASTNodeDeclaration decl;
-        ASTNodeOperator    oper;
+        ASTNodeConstantInteger cint;
+        ASTNodeConstantDouble  cdouble;
+        ASTNodeIdentifier      iden;
+        ASTNodeDeclaration     decl;
+        ASTNodeOperator        oper;
     };
 } ASTNode;
 
-ASTNode* ast_cons(int value);
+ASTNode* ast_cons_integer(long value);
+ASTNode* ast_cons_double(double value);
 ASTNode* ast_iden(struct Symbol* symbol);
 ASTNode* ast_decl(int token);
 ASTNode* ast_oper(int oper, int nops, ...);

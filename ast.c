@@ -19,16 +19,25 @@
     AST_CHECK(n); \
     n->type = (t)
 
-ASTNode* ast_cons(int value)
+ASTNode* ast_cons_integer(long value)
 {
-    AST_ALLOC(ASTNodeTypeConstant);
-    n->cons.value = value;
+    LOG(("AST cint(%ld)", value));
+    AST_ALLOC(ASTNodeTypeConstantInteger);
+    n->cint.value = value;
+    return n;
+}
+
+ASTNode* ast_cons_double(double value)
+{
+    LOG(("AST cdouble(%lf)", value));
+    AST_ALLOC(ASTNodeTypeConstantDouble);
+    n->cdouble.value = value;
     return n;
 }
 
 ASTNode* ast_iden(Symbol* symbol)
 {
-    LOG(("ast_iden(%p => %s - %s)", symbol, token_name(symbol->token), symbol->name));
+    LOG(("AST iden(%p => %s - %s)", symbol, token_name(symbol->token), symbol->name));
     AST_ALLOC(ASTNodeTypeIdentifier);
     n->iden.symbol = symbol;
     return n;
@@ -36,7 +45,7 @@ ASTNode* ast_iden(Symbol* symbol)
 
 ASTNode* ast_decl(int token)
 {
-    LOG(("ast_decl(%d)", token));
+    LOG(("AST decl(%d)", token));
     AST_ALLOC(ASTNodeTypeDeclaration);
     n->decl.token = token;
     return n;
@@ -44,7 +53,7 @@ ASTNode* ast_decl(int token)
 
 ASTNode* ast_oper(int oper, int nops, ...)
 {
-    LOG(("OPR [%s] with %d operands", token_name(oper), nops));
+    LOG(("AST oper(%s => %d operands)", token_name(oper), nops));
 
     AST_ALLOC(ASTNodeTypeOperator);
 
@@ -70,7 +79,7 @@ void ast_free(ASTNode* n)
         return;
     }
 
-    LOG(("AST DESTROY %p", n));
+    // LOG(("AST free(%p)", n));
     if (n->type == ASTNodeTypeOperator) {
         for(int j = 0; j < n->oper.nops; j++)
             ast_free(n->oper.op[j]);
