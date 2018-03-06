@@ -20,11 +20,11 @@ static Symbol* symbol_build(const char* name, int token, Block* block)
     symbol->token = token;
     symbol->block = block_clone(block);
     if (symbol->token != VARIABLE) {
-        LOG(("SYMBOL CREATED (%s) [%s] => %p", token_name(token), name, symbol));
+        LOG(("SYM created (%s) [%s] => %p", token_name(token), name, symbol));
     } else {
         char wanted[256];
         block_format(block, wanted);
-        LOG(("SYMBOL CREATED [%s] (%s) => %p", name, wanted, symbol));
+        LOG(("SYM created [%s] (%s) => %p", name, wanted, symbol));
     }
     return symbol;
 }
@@ -92,19 +92,19 @@ Symbol* symtab_lookup(SymTab* symtab, const char* name, struct Block* block, int
         }
         // found it!
         if (s->token != VARIABLE) {
-            LOG(("SYMBOL FOUND (%s) [%s] %d", token_name(s->token), name, h));
+            LOG(("SYM found (%s) [%s] %d", token_name(s->token), name, h));
         } else {
             char found[256];
             block_format(s->block, found);
             char wanted[256];
             block_format(block, wanted);
-            LOG(("SYMBOL FOUND [%s] %d -> [%s] / [%s]", name, h, found, wanted));
+            LOG(("SYM found [%s] %d -> [%s] / [%s]", name, h, found, wanted));
         }
         return s;
     }
 
     // not there...
-    LOG(("SYMBOL NOT FOUND [%s] %d", name, h));
+    LOG(("SYM not found [%s] %d", name, h));
     return 0;
 }
 

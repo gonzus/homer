@@ -8,16 +8,10 @@ int main(int argc, char* argv[])
 
     Homer* homer = homer_build();
     if (argc <= 1) {
-        homer_parse(homer, stdin);
+        homer_process(homer, "<STDIN>", stdin);
     } else {
         for (int j = 1; j < argc; ++j) {
-            FILE* fp = fopen(argv[j], "r");
-            if (!fp) {
-                fprintf(stderr, "Could not open %s for reading\n", argv[j]);
-                continue;
-            }
-            homer_parse(homer, fp);
-            fclose(fp);
+            homer_process(homer, argv[j], 0);
         }
     }
     homer_destroy(homer);

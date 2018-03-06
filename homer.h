@@ -15,8 +15,7 @@ typedef struct Homer {
 
 Homer* homer_build(void);
 void homer_destroy(Homer* homer);
-int homer_parse(Homer* homer, FILE* fp);
-int homer_run(Homer* homer);
+int homer_process(Homer* homer, const char* fn, FILE* fp);
 void homer_error(Homer* homer, const char *fmt, ...);
 
 // this function is defined in parser.y and need bison internals

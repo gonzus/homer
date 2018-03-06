@@ -12,6 +12,9 @@
 #include "log.h"
 #include "block.h"
 
+static int homer_parse(Homer* homer, FILE* fp);
+static int homer_run(Homer* homer);
+
 Homer* homer_build(void)
 {
     Homer* homer = (Homer*) malloc(sizeof(Homer));
@@ -31,33 +34,46 @@ void homer_destroy(Homer* homer)
     free(homer);
 }
 
-int homer_parse(Homer* homer, FILE* fp)
+int homer_process(Homer* homer, const char* fn, FILE* fp)
 {
-#if 0
-    extern int yy_flex_debug;
-    yy_flex_debug = 1;
-#endif
-
-    yyscan_t scanner;
-    yylex_init(&scanner);
-    yyset_in(fp, scanner);
-
-    if (yyparse(scanner, homer) == 0) {
-        homer_run(homer);
-    } else {
-        fprintf(stderr, "Could not parse input file\n");
+    if (!fn && !fp) {
+        fprintf(stderr, "Need file name or file stream\n");
+        return 1;
+    }
+    if (fn && fp) {
+        fprintf(stderr, "Need only one of file name or file stream\n");
+        return 1;
     }
 
-    yylex_destroy(scanner);
-    return 0;
-}
+    int close = 0;
+    do {
+        if (!fp) {
+            fp = fopen(fn, "r");
+            if (!fp) {
+                fprintf(stderr, "Could not open %s for reading\n", fn);
+                break;
+            }
+            close = 1;
+        }
 
-int homer_run(Homer* homer)
-{
-    LOG(("RUNNING root %p", homer->root));
-    run(homer->root, homer);
-    ast_free(homer->root);
-    homer->root = 0;
+        int parse = homer_parse(homer, fp);
+        if (parse != 0) {
+            fprintf(stderr, "Could not parse input file %s: %d\n", fn, parse);
+            break;
+        }
+
+        int run = homer_run(homer);
+        if (run != 0) {
+            fprintf(stderr, "Could not run input file %s: %d\n", fn, run);
+            break;
+        }
+    } while (0);
+
+    if (close && fp) {
+        fclose(fp);
+        close = 0;
+    }
+
     return 0;
 }
 
@@ -69,4 +85,33 @@ void homer_error(Homer* homer, const char *fmt, ...)
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
     va_end(ap);
+}
+
+static int homer_parse(Homer* homer, FILE* fp)
+{
+#if 0
+    extern int yy_flex_debug;
+    yy_flex_debug = 1;
+#endif
+
+    yyscan_t scanner;
+    yylex_init(&scanner);
+    yyset_in(fp, scanner);
+
+    LOG(("=== PARSE START ==="));
+    int parse = yyparse(scanner, homer);
+    LOG(("=== PARSE END ==="));
+
+    yylex_destroy(scanner);
+    return parse;
+}
+
+static int homer_run(Homer* homer)
+{
+    LOG(("=== RUN START ==="));
+    run(homer->root, homer);
+    ast_free(homer->root);
+    homer->root = 0;
+    LOG(("=== RUN END ==="));
+    return 0;
 }
