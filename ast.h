@@ -8,6 +8,7 @@ struct Symbol;
 typedef enum {
     ASTNodeTypeConstantInteger,
     ASTNodeTypeConstantDouble,
+    ASTNodeTypeConstantString,
     ASTNodeTypeIdentifier,
     ASTNodeTypeDeclaration,
     ASTNodeTypeOperator,
@@ -20,6 +21,9 @@ typedef struct ASTNodeConstantInteger {
 typedef struct ASTNodeConstantDouble {
     double value;
 } ASTNodeConstantDouble;
+typedef struct ASTNodeConstantString {
+    char* value;
+} ASTNodeConstantString;
 
 /* Identifier AST nodes */
 typedef struct ASTNodeIdentifier {
@@ -43,7 +47,8 @@ typedef struct ASTNode {
     ASTNodeEnum type;
     union {
         ASTNodeConstantInteger cint;
-        ASTNodeConstantDouble  cdouble;
+        ASTNodeConstantDouble  cdbl;
+        ASTNodeConstantString  cstr;
         ASTNodeIdentifier      iden;
         ASTNodeDeclaration     decl;
         ASTNodeOperator        oper;
@@ -52,6 +57,7 @@ typedef struct ASTNode {
 
 ASTNode* ast_cons_integer(long value);
 ASTNode* ast_cons_double(double value);
+ASTNode* ast_cons_string(char* value);
 ASTNode* ast_iden(struct Symbol* symbol);
 ASTNode* ast_decl(int token);
 ASTNode* ast_oper(int oper, int nops, ...);

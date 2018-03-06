@@ -30,13 +30,13 @@ typedef void* yyscan_t;
   long iValue;          /*   integer value                 */
   double fValue;        /*   floating point value          */
   char* sValue;         /*   string value                  */
-  Symbol* symbol;       /*   pointer to symbol table entry */
   ASTNode* ast;         /*   pointer to AST node           */
 }
 
 %token <iValue> INTEGER
 %token <fValue> FLOAT
-%token <sValue> VARIABLE
+%token <sValue> STRING
+%token <sValue> VARIABLE  /* receive variables as string, create symbol here */
 %token VAR INT
 %token WHILE IF PRINT
 %token COMMA COLON SEMI ASS
@@ -93,6 +93,7 @@ stmt_list
 expr
     : INTEGER[I]                                 { $$ = ast_cons_integer($I); }
     | FLOAT[F]                                   { $$ = ast_cons_double($F); }
+    | STRING[S]                                  { $$ = ast_cons_string($S); }
     | VARIABLE[V]                                { $$ = var_use(homer, $V); }
     | SUB expr[X] %prec UMINUS                   { $$ = ast_oper(UMINUS, 1, $X); }
     | expr[X] ADD expr[Y]                        { $$ = ast_oper(ADD, 2, $X, $Y); }

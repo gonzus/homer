@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "ast.h"
 #include "symtab.h"
 #include "homer.h"
@@ -17,9 +18,14 @@ int run(ASTNode* n, Homer* homer)
             return n->cint.value;
 
         case ASTNodeTypeConstantDouble:
-            LOG(("RUN cdouble %lf", n->cdouble.value));
+            LOG(("RUN cdbl %lf", n->cdbl.value));
             // TODO: this just won't do...
-            return n->cdouble.value;
+            return (int) n->cdbl.value;
+
+        case ASTNodeTypeConstantString:
+            LOG(("RUN cstr [%s]", n->cstr.value));
+            // TODO: this just won't do...
+            return n->cstr.value ? strlen(n->cstr.value) : -1;
 
         case ASTNodeTypeIdentifier:
             LOG(("RUN identifier %s", n->iden.symbol->name));

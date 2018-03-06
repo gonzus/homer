@@ -1,0 +1,13 @@
+# test strings
+
+print 11;
+print 1_066;
+print 0x7f;
+print 023;
+print 0b1011;
+
+print 3.1416;
+print 2.71_82_81;
+
+print "gonzo";
+print "alecita";

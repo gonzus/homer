@@ -1,5 +1,6 @@
 %{
 #include <stdlib.h>
+#include "log.h"
 #include "mem.h"
 #include "ast.h"
 #include "symtab.h"
@@ -7,8 +8,9 @@
 #include "parser.h"
 #include "reentrant.h"
 
-static long parse_integer(const char* s, int base);
-static double parse_float(const char* s);
+static void parse_integer(const char* str, int base, long* ans);
+static void parse_float(const char* str, double* ans);
+static void parse_string(const char* str, int len, char** ans);
 %}
 
 %option reentrant bison-bridge
@@ -23,19 +25,23 @@ DEC                 [_0-9]
 HEX                 [_0-9a-fA-F]
 SPACE               [ \t]
 NEWL                [\n]
+Q                   ["]
+NQ                  [^"]
 
 IDINIT              [_A-Za-z]
 IDREST              [_A-Za-z0-9]
 
 %%
 
-{SGN}?0             { yylval->iValue = 0; return INTEGER; }
-{SGN}?0[bB]{BIN}+   { yylval->iValue = parse_integer(yytext + 2,  2); return INTEGER; }
-{SGN}?0{OCT}+       { yylval->iValue = parse_integer(yytext + 1,  8); return INTEGER; }
-{SGN}?[1-9]{DEC}*   { yylval->iValue = parse_integer(yytext + 0, 10); return INTEGER; }
-{SGN}?0[xX]{HEX}+   { yylval->iValue = parse_integer(yytext + 2, 16); return INTEGER; }
+0             { yylval->iValue = 0; return INTEGER; }
+0[bB]{BIN}+   { parse_integer(yytext + 2,  2, &yylval->iValue); return INTEGER; }
+0{OCT}+       { parse_integer(yytext + 1,  8, &yylval->iValue); return INTEGER; }
+[1-9]{DEC}*   { parse_integer(yytext + 0, 10, &yylval->iValue); return INTEGER; }
+0[xX]{HEX}+   { parse_integer(yytext + 2, 16, &yylval->iValue); return INTEGER; }
 
-{SGN}?[1-9]{DEC}*\.{DEC}* { yylval->fValue = parse_float(yytext + 0); return FLOAT; }
+[1-9]{DEC}*\.{DEC}* { parse_float(yytext + 0, &yylval->fValue); return FLOAT; }
+
+{Q}{NQ}*{Q}         { parse_string(yytext, yyleng, &yylval->sValue); return STRING; }
 
 "&&"                return LAND;
 "||"                return LOR;
@@ -82,30 +88,38 @@ IDREST              [_A-Za-z0-9]
 
 %%
 
-static long parse_integer(const char* s, int base)
+static void parse_integer(const char* str, int base, long* ans)
 {
     char tmp[100];
     int k = 0;
-    for (int j = 0; s[j] != '\0'; ++j) {
-        if (s[j] == '_') {
+    for (int j = 0; str[j] != '\0'; ++j) {
+        if (str[j] == '_') {
             continue;
         }
-        tmp[k++] = s[j];
+        tmp[k++] = str[j];
     }
     tmp[k] = '\0';
-    return strtol(tmp, 0,  base);
+    *ans = strtol(tmp, 0,  base);
+    LOG(("INT [%s] (%d) -> [%s] => %ld", str, base, tmp, *ans, base));
 }
 
-static double parse_float(const char* s)
+static void parse_float(const char* str, double* ans)
 {
     char tmp[100];
     int k = 0;
-    for (int j = 0; s[j] != '\0'; ++j) {
-        if (s[j] == '_') {
+    for (int j = 0; str[j] != '\0'; ++j) {
+        if (str[j] == '_') {
             continue;
         }
-        tmp[k++] = s[j];
+        tmp[k++] = str[j];
     }
     tmp[k] = '\0';
-    return strtod(tmp, 0);
+    *ans = strtod(tmp, 0);
+    LOG(("DOUBLE [%s] -> [%s] => %lf", str, tmp, *ans));
+}
+
+static void parse_string(const char* str, int len, char** ans)
+{
+    MEM_STRDUP(*ans, str + 1, len- 2);
+    LOG(("STR [%s] (%d) => [%s]", str, len, *ans));
 }

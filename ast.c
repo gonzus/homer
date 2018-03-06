@@ -29,9 +29,17 @@ ASTNode* ast_cons_integer(long value)
 
 ASTNode* ast_cons_double(double value)
 {
-    LOG(("AST cdouble(%lf)", value));
+    LOG(("AST cdbl(%lf)", value));
     AST_ALLOC(ASTNodeTypeConstantDouble);
-    n->cdouble.value = value;
+    n->cdbl.value = value;
+    return n;
+}
+
+ASTNode* ast_cons_string(char* value)
+{
+    LOG(("AST cstr(%s)", value));
+    AST_ALLOC(ASTNodeTypeConstantString);
+    n->cstr.value = value; /* grab ownership of pointer */
     return n;
 }
 
