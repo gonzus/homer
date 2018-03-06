@@ -59,53 +59,54 @@ typedef void* yyscan_t;
 %%
 
 program
-    : stmt_list                        { homer->root = $1; }
+    : stmt_list[L]                               { homer->root = $L; }
     ;
 
 stmt
-    : SEMI                             { $$ = ast_oper(SEMI, 2, 0, 0); }
-    | expr SEMI                        { $$ = $1; }
-    | VAR var_list COLON decl SEMI     { $$ = ast_oper(VAR, 2, $2, $4); }
-    | PRINT expr SEMI                  { $$ = ast_oper(PRINT, 1, $2); }
-    | VARIABLE ASS expr SEMI           { $$ = ast_oper(ASS, 2, var_use(homer, $1), $3); }
-    | WHILE LPAR expr RPAR stmt        { $$ = ast_oper(WHILE, 2, $3, $5); }
-    | IF LPAR expr RPAR stmt %prec IFX { $$ = ast_oper(IF, 2, $3, $5); }
-    | IF LPAR expr RPAR stmt ELSE stmt { $$ = ast_oper(IF, 3, $3, $5, $7); }
-    | LBRC {HBN} stmt_list {HBE} RBRC  { $$ = $3; }
+    : SEMI                                       { $$ = ast_oper(SEMI, 2, 0, 0); }
+    | expr[E] SEMI                               { $$ = $E; }
+    | VAR var_list[L] COLON decl[D] SEMI         { $$ = ast_oper(VAR, 2, $L, $D); }
+    | PRINT expr[E] SEMI                         { $$ = ast_oper(PRINT, 1, $E); }
+    | VARIABLE[V] ASS expr[E] SEMI               { $$ = ast_oper(ASS, 2, var_use(homer, $V), $E); }
+    | WHILE LPAR expr[E] RPAR stmt[S]            { $$ = ast_oper(WHILE, 2, $E, $S); }
+    | IF LPAR expr[C] RPAR stmt[I] %prec IFX     { $$ = ast_oper(IF, 2, $C, $I); }
+    | IF LPAR expr[C] RPAR stmt[I] ELSE stmt[E]  { $$ = ast_oper(IF, 3, $C, $I, $E); }
+    | LBRC {HBN} stmt_list[L] {HBE} RBRC         { $$ = $L; }
     ;
 
 decl
-    : INT                              { $$ = ast_decl(INT); }
+    : INT                                        { $$ = ast_decl(INT); }
     ;
 
 var_list
-    : VARIABLE                         { $$ = var_decl(homer, $1); }
-    | var_list COMMA VARIABLE          { $$ = ast_oper(COMMA, 2, $1, var_decl(homer, $3)); }
+    : VARIABLE[V]                                { $$ = var_decl(homer, $V); }
+    | var_list[L] COMMA VARIABLE[V]              { $$ = ast_oper(COMMA, 2, $L, var_decl(homer, $V)); }
     ;
 
 stmt_list
-    : stmt                             { $$ = $1; }
-    | stmt_list stmt                   { $$ = ast_oper(SEMI, 2, $1, $2); }
+    : stmt[S]                                    { $$ = $S; }
+    | stmt_list[L] stmt[S]                       { $$ = ast_oper(SEMI, 2, $L, $S); }
     ;
 
 expr
-    : INTEGER                          { $$ = ast_cons($1); }
-    | VARIABLE                         { $$ = var_use(homer, $1); }
-    | SUB expr %prec UMINUS            { $$ = ast_oper(UMINUS, 1, $2); }
-    | expr ADD expr                    { $$ = ast_oper(ADD, 2, $1, $3); }
-    | expr SUB expr                    { $$ = ast_oper(SUB, 2, $1, $3); }
-    | expr MUL expr                    { $$ = ast_oper(MUL, 2, $1, $3); }
-    | expr DIV expr                    { $$ = ast_oper(DIV, 2, $1, $3); }
-    | expr GT expr                     { $$ = ast_oper(GT, 2, $1, $3); }
-    | expr LT expr                     { $$ = ast_oper(LT, 2, $1, $3); }
-    | expr GE expr                     { $$ = ast_oper(GE, 2, $1, $3); }
-    | expr LE expr                     { $$ = ast_oper(LE, 2, $1, $3); }
-    | expr EQ expr                     { $$ = ast_oper(EQ, 2, $1, $3); }
-    | expr NE expr                     { $$ = ast_oper(NE, 2, $1, $3); }
-    | expr LAND expr                   { $$ = ast_oper(LAND, 2, $1, $3); }
-    | expr LOR expr                    { $$ = ast_oper(LOR, 2, $1, $3); }
-    | LNOT expr                        { $$ = ast_oper(LNOT, 1, $2); }
-    | LPAR expr RPAR                   { $$ = $2; }
+    : INTEGER[I]                                 { $$ = ast_cons_integer($I); }
+    | FLOAT[F]                                   { $$ = ast_cons_double($F); }
+    | VARIABLE[V]                                { $$ = var_use(homer, $V); }
+    | SUB expr[X] %prec UMINUS                   { $$ = ast_oper(UMINUS, 1, $X); }
+    | expr[X] ADD expr[Y]                        { $$ = ast_oper(ADD, 2, $X, $Y); }
+    | expr[X] SUB expr[Y]                        { $$ = ast_oper(SUB, 2, $X, $Y); }
+    | expr[X] MUL expr[Y]                        { $$ = ast_oper(MUL, 2, $X, $Y); }
+    | expr[X] DIV expr[Y]                        { $$ = ast_oper(DIV, 2, $X, $Y); }
+    | expr[X] GT expr[Y]                         { $$ = ast_oper(GT, 2, $X, $Y); }
+    | expr[X] LT expr[Y]                         { $$ = ast_oper(LT, 2, $X, $Y); }
+    | expr[X] GE expr[Y]                         { $$ = ast_oper(GE, 2, $X, $Y); }
+    | expr[X] LE expr[Y]                         { $$ = ast_oper(LE, 2, $X, $Y); }
+    | expr[X] EQ expr[Y]                         { $$ = ast_oper(EQ, 2, $X, $Y); }
+    | expr[X] NE expr[Y]                         { $$ = ast_oper(NE, 2, $X, $Y); }
+    | expr[X] LAND expr[Y]                       { $$ = ast_oper(LAND, 2, $X, $Y); }
+    | expr[X] LOR expr[Y]                        { $$ = ast_oper(LOR, 2, $X, $Y); }
+    | LNOT expr[X]                               { $$ = ast_oper(LNOT, 1, $X); }
+    | LPAR expr[X] RPAR                          { $$ = $X; }
     ;
 %%
 
