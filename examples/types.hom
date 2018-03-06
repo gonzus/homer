@@ -2,7 +2,7 @@
 
 print 100;
 
-var i,k: int;
+var i, j: int;
 j = 1;
 print j;
 

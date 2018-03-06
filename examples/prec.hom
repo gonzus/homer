@@ -1,4 +1,6 @@
 # test precedence
+var j, k, l: int;
+
 j = 1;
 k = 2;
 l = 0;

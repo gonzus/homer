@@ -3,4 +3,3 @@ while(count < 0b10_11) {
   count = count + 1;
   print(count);
 }
-

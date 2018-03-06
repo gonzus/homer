@@ -1,10 +1,12 @@
-count = 4;
+var count, f0, f1: int;
 
+count = 4;
 f0 = 1;
 f1 = 1;
 
 while(count > 0)
 {
+  var tmp: int;
   tmp = f0;
 
   f0 = f0 + f1;
