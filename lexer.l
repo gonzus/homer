@@ -16,6 +16,7 @@ static double parse_float(const char* s);
 %option noyywrap never-interactive nounistd
 
 
+SGN                 [-+]
 BIN                 [_0-1]
 OCT                 [_0-7]
 DEC                 [_0-9]
@@ -28,13 +29,13 @@ IDREST              [_A-Za-z0-9]
 
 %%
 
-0                   { yylval->iValue = 0; return INTEGER; }
-0[bB]{BIN}+         { yylval->iValue = parse_integer(yytext + 2,  2); return INTEGER; }
-0{OCT}+             { yylval->iValue = parse_integer(yytext + 1,  8); return INTEGER; }
-[1-9]{DEC}*         { yylval->iValue = parse_integer(yytext + 0, 10); return INTEGER; }
-0[xX]{HEX}+         { yylval->iValue = parse_integer(yytext + 2, 16); return INTEGER; }
+{SGN}?0             { yylval->iValue = 0; return INTEGER; }
+{SGN}?0[bB]{BIN}+   { yylval->iValue = parse_integer(yytext + 2,  2); return INTEGER; }
+{SGN}?0{OCT}+       { yylval->iValue = parse_integer(yytext + 1,  8); return INTEGER; }
+{SGN}?[1-9]{DEC}*   { yylval->iValue = parse_integer(yytext + 0, 10); return INTEGER; }
+{SGN}?0[xX]{HEX}+   { yylval->iValue = parse_integer(yytext + 2, 16); return INTEGER; }
 
-[1-9]{DEC}*\.{DEC}* { yylval->fValue = parse_float(yytext + 0); return FLOAT; }
+{SGN}?[1-9]{DEC}*\.{DEC}* { yylval->fValue = parse_float(yytext + 0); return FLOAT; }
 
 "&&"                return LAND;
 "||"                return LOR;
