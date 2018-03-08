@@ -2,18 +2,15 @@
 
 print 100;
 
-var j: int;
-j = 1;
+var j: int = 1;
 print j;
 
 if (10 > 5) {
-    var k: int;
-    k = 1;
+    var k: int = 1;
     print k;
 
     if (10 > 5) {
         var j: int;
-        j = 0;
         print 1-j;
     }
     print j;
@@ -23,8 +20,7 @@ if (10 > 5) {
     }
     print k;
     if (10 > 5) {
-        var m: int;
-        m = 5;
+        var m: int = 5;
         # var m: int;
     }
     print k;
@@ -32,8 +28,7 @@ if (10 > 5) {
 
 print j;
 
-var g: int;
-g = 1;
+var g: int = 1;
 print g;
 
 if (10 < 5) {

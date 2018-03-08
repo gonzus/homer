@@ -2,10 +2,6 @@
 
 var j, k, l: int = 7;
 
-# j = 2;
-# k = 3;
-# l = 4;
-
 print 100;
 
 if (j+k*2 == 21) { print 1; } else { print 0; }

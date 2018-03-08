@@ -1,13 +1,8 @@
-var count, f0, f1: int;
+var count: int = 4;
+var f0, f1: int = 1;
 
-count = 4;
-f0 = 1;
-f1 = 1;
-
-while(count > 0)
-{
-  var tmp: int;
-  tmp = f0;
+while (count > 0) {
+  var tmp: int = f0;
 
   f0 = f0 + f1;
   f1 = tmp;
