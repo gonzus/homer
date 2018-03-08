@@ -100,7 +100,7 @@ static void parse_integer(const char* str, int base, long* ans)
     }
     tmp[k] = '\0';
     *ans = strtol(tmp, 0,  base);
-    LOG(("INT [%s] (%d) -> [%s] => %ld", str, base, tmp, *ans, base));
+    LOG(("int [%s] (%d) -> [%s] => %ld", str, base, tmp, *ans, base));
 }
 
 static void parse_float(const char* str, double* ans)
@@ -115,11 +115,11 @@ static void parse_float(const char* str, double* ans)
     }
     tmp[k] = '\0';
     *ans = strtod(tmp, 0);
-    LOG(("DOUBLE [%s] -> [%s] => %lf", str, tmp, *ans));
+    LOG(("dbl [%s] -> [%s] => %lf", str, tmp, *ans));
 }
 
 static void parse_string(const char* str, int len, char** ans)
 {
     MEM_STRDUP(*ans, str + 1, len- 2);
-    LOG(("STR [%s] (%d) => [%s]", str, len, *ans));
+    LOG(("str [%s] (%d) => [%s]", str, len, *ans));
 }

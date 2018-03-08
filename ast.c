@@ -21,7 +21,7 @@
 
 ASTNode* ast_cons_integer(long value)
 {
-    LOG(("AST cint(%ld)", value));
+    LOG(("AST cint %ld", value));
     AST_ALLOC(ASTNodeTypeConstantInteger);
     n->cint.value = value;
     return n;
@@ -29,7 +29,7 @@ ASTNode* ast_cons_integer(long value)
 
 ASTNode* ast_cons_double(double value)
 {
-    LOG(("AST cdbl(%lf)", value));
+    LOG(("AST cdbl %lf", value));
     AST_ALLOC(ASTNodeTypeConstantDouble);
     n->cdbl.value = value;
     return n;
@@ -37,7 +37,7 @@ ASTNode* ast_cons_double(double value)
 
 ASTNode* ast_cons_string(char* value)
 {
-    LOG(("AST cstr(%s)", value));
+    LOG(("AST cstr [%s]", value));
     AST_ALLOC(ASTNodeTypeConstantString);
     n->cstr.value = value; /* grab ownership of pointer */
     return n;
@@ -45,7 +45,7 @@ ASTNode* ast_cons_string(char* value)
 
 ASTNode* ast_iden(Symbol* symbol)
 {
-    LOG(("AST iden(%p => %s - %s)", symbol, token_name(symbol->token), symbol->name));
+    LOG(("AST iden %s %s", token_name(symbol->token), symbol->name));
     AST_ALLOC(ASTNodeTypeIdentifier);
     n->iden.symbol = symbol;
     return n;
@@ -53,7 +53,7 @@ ASTNode* ast_iden(Symbol* symbol)
 
 ASTNode* ast_decl(int token)
 {
-    LOG(("AST decl(%d)", token));
+    LOG(("AST decl %s", token_name(token)));
     AST_ALLOC(ASTNodeTypeDeclaration);
     n->decl.token = token;
     return n;
@@ -61,8 +61,6 @@ ASTNode* ast_decl(int token)
 
 ASTNode* ast_oper(int oper, int nops, ...)
 {
-    LOG(("AST oper(%s => %d operands)", token_name(oper), nops));
-
     AST_ALLOC(ASTNodeTypeOperator);
 
     MEM_ALLOC(n->oper.op, ASTNode**, nops * sizeof(ASTNode));
@@ -71,12 +69,40 @@ ASTNode* ast_oper(int oper, int nops, ...)
     n->oper.oper = oper;
     n->oper.nops = nops;
 
+    char label[1024];
+    int pos = 0;
     va_list ap;
     va_start(ap, nops);
     for (int j = 0; j < nops; j++) {
         n->oper.op[j] = va_arg(ap, ASTNode*);
+        if (pos > 0) {
+            label[pos++] = ':';
+        }
+        switch (n->oper.op[j]->type) {
+            case ASTNodeTypeConstantInteger:
+                pos += sprintf(label + pos, "KI");
+                break;
+            case ASTNodeTypeConstantDouble:
+                pos += sprintf(label + pos, "KD");
+                break;
+            case ASTNodeTypeConstantString:
+                pos += sprintf(label + pos, "KS");
+                break;
+            case ASTNodeTypeIdentifier:
+                pos += sprintf(label + pos, "ID");
+                break;
+            case ASTNodeTypeDeclaration:
+                pos += sprintf(label + pos, "DE");
+                break;
+            case ASTNodeTypeOperator:
+                pos += sprintf(label + pos, "OP");
+                break;
+        }
     }
     va_end(ap);
+    label[pos] = '\0';
+    LOG(("AST oper %s %d ops [%s])", token_name(oper), nops, label));
+
 
     return n;
 }
