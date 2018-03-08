@@ -7,6 +7,8 @@
 #include "log.h"
 #include "interp.h"
 
+static int initialize(ASTNode* n, Homer* homer);
+
 int run(ASTNode* n, Homer* homer)
 {
     if (!n)
@@ -39,6 +41,7 @@ int run(ASTNode* n, Homer* homer)
             LOG(("RUN operator %s", token_name(n->oper.oper)));
             switch (n->oper.oper) {
                 case VAR:
+                    initialize(n, homer);
                     return 0;
 
                 case WHILE:
@@ -49,7 +52,7 @@ int run(ASTNode* n, Homer* homer)
                 case IF:
                     if (run(n->oper.op[0], homer))
                         run(n->oper.op[1], homer);
-                    else if(n->oper.nops > 2)
+                    else if(n->oper.nops >= 3)
                         run(n->oper.op[2], homer);
                     return 0;
 
@@ -113,4 +116,40 @@ int run(ASTNode* n, Homer* homer)
     }
 
     return 0;
+}
+
+static int initialize(ASTNode* n, Homer* homer)
+{
+    if (n->oper.nops < 3) {
+        return 0;
+    }
+
+    int count = 0;
+    int val = run(n->oper.op[2], homer);
+    ASTNode* v = n->oper.op[0];
+    while (1) {
+        if (!v) {
+            break;
+        }
+        switch (v->type) {
+            case ASTNodeTypeIdentifier:
+                v->iden.symbol->value = val;
+                ++count;
+                v = 0;
+                break;
+            case ASTNodeTypeOperator:
+                if (v->oper.oper != COMMA) {
+                    v = 0;
+                } else {
+                    v->oper.op[1]->iden.symbol->value = val;
+                    ++count;
+                    v = v->oper.op[0];
+                }
+                break;
+            default:
+                v = 0;
+                break;
+        }
+    }
+    return count;
 }

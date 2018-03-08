@@ -56,38 +56,39 @@ typedef void* yyscan_t;
 %left MUL DIV
 %nonassoc UMINUS        /* unary minus, highest precedence */
 
-%type <ast> program stmt stmt_list expr decl var_list
+%type <ast> program stmt stmts expr decl vars
 
 %%
 
 program
-    : stmt_list[L]                               { homer->root = $L; }
+    : stmts[L]                                   { homer->root = $L; }
     ;
 
 stmt
     : SEMI                                       { $$ = ast_oper(SEMI, 2, 0, 0); }
     | expr[E] SEMI                               { $$ = $E; }
-    | VAR var_list[L] COLON decl[D] SEMI         { $$ = ast_oper(VAR, 2, $L, $D); }
+    | VAR vars[L] COLON decl[D] SEMI             { $$ = ast_oper(VAR, 2, $L, $D); }
+    | VAR vars[L] COLON decl[D] ASS expr[E] SEMI { $$ = ast_oper(VAR, 3, $L, $D, $E); }
     | PRINT expr[E] SEMI                         { $$ = ast_oper(PRINT, 1, $E); }
     | VARIABLE[V] ASS expr[E] SEMI               { $$ = ast_oper(ASS, 2, var_use(homer, $V), $E); }
     | WHILE LPAR expr[E] RPAR stmt[S]            { $$ = ast_oper(WHILE, 2, $E, $S); }
     | IF LPAR expr[C] RPAR stmt[I] %prec IFX     { $$ = ast_oper(IF, 2, $C, $I); }
     | IF LPAR expr[C] RPAR stmt[I] ELSE stmt[E]  { $$ = ast_oper(IF, 3, $C, $I, $E); }
-    | LBRC {HBN} stmt_list[L] {HBE} RBRC         { $$ = $L; }
+    | LBRC {HBN} stmts[L] {HBE} RBRC             { $$ = $L; }
     ;
 
 decl
     : INT                                        { $$ = ast_decl(INT); }
     ;
 
-var_list
+vars
     : VARIABLE[V]                                { $$ = var_decl(homer, $V); }
-    | var_list[L] COMMA VARIABLE[V]              { $$ = ast_oper(COMMA, 2, $L, var_decl(homer, $V)); }
+    | vars[L] COMMA VARIABLE[V]                  { $$ = ast_oper(COMMA, 2, $L, var_decl(homer, $V)); }
     ;
 
-stmt_list
+stmts
     : stmt[S]                                    { $$ = $S; }
-    | stmt_list[L] stmt[S]                       { $$ = ast_oper(SEMI, 2, $L, $S); }
+    | stmts[L] stmt[S]                           { $$ = ast_oper(SEMI, 2, $L, $S); }
     ;
 
 expr
