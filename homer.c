@@ -1,10 +1,11 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include "homer.h"
 #include "ast.h"
 #include "symtab.h"
-#include "homer.h"
 #include "parser.h"
 #include "lexer.h"
+#include "visitor.h"
 #include "interp.h"
 #include "log.h"
 #include "block.h"
@@ -19,6 +20,7 @@ Homer* homer_build(void)
     homer->lineno = 1;
     homer->symtab = symtab_build(0);
     homer->block = block_create(0);
+    homer->visitor = visitor_create();
     return homer;
 }
 
@@ -26,6 +28,7 @@ void homer_destroy(Homer* homer)
 {
     ast_free(homer->root);
     homer->root = 0;
+    visitor_destroy(homer->visitor);
     block_destroy(homer->block);
     symtab_destroy(homer->symtab);
     free(homer);
@@ -106,7 +109,7 @@ static int homer_parse(Homer* homer, FILE* fp)
 static int homer_run(Homer* homer)
 {
     LOG(("=== RUN START ==="));
-    run(homer->root, homer);
+    interpreter_run(homer->root, homer);
     ast_free(homer->root);
     homer->root = 0;
     LOG(("=== RUN END ==="));

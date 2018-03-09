@@ -1,9 +1,6 @@
 #ifndef AST_H_
 #define AST_H_
 
-struct Homer;
-struct Symbol;
-
 /* Possible types of AST node */
 typedef enum {
     ASTNodeTypeConstantInteger,

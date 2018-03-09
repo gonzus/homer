@@ -15,6 +15,7 @@ C_FILES = \
 	parser.c \
 	ast.c \
 	symtab.c \
+	visitor.c \
 	interp.c \
 	log.c \
 	mem.c \
@@ -92,6 +93,7 @@ lexer.o: lexer.c parser.h
 parser.o: parser.c parser.h
 ast.o: ast.c
 symtab.o: symtab.c
+visitor.o: visitor.c
 interp.o: interp.c parser.h
 log.o: log.c
 mem.o: mem.c

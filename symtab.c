@@ -1,7 +1,7 @@
 #include "mem.h"
-#include "ast.h"
 #include "log.h"
 #include "homer.h"
+#include "ast.h"
 #include "block.h"
 #include "symtab.h"
 #include "parser.h"

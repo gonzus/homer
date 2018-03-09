@@ -3,14 +3,12 @@
 
 #include <stdio.h>
 
-struct ASTNode;
-struct SymTab;
-
 typedef struct Homer {
     int lineno;
     struct ASTNode* root;
     struct SymTab* symtab;
     struct Block* block;
+    struct Visitor* visitor;
 } Homer;
 
 Homer* homer_build(void);
