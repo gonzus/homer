@@ -1,6 +1,4 @@
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "log.h"
 #include "mem.h"
 #include "homer.h"
@@ -8,7 +6,6 @@
 #include "symtab.h"
 #include "parser.h"
 
-        // homer_error("out of memory");
 #define AST_CHECK(x) \
     if (!x) { \
         return 0; \

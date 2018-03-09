@@ -1,8 +1,5 @@
-#include <memory.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "mem.h"
-#include "log.h"
 #include "block.h"
 
 #define BLOCK_DEBUG 0
