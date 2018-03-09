@@ -35,7 +35,7 @@ static void symbol_destroy(Symbol* symbol)
         return;
     }
     block_destroy(symbol->block);
-    MEM_FREE(symbol->name, char*, -1);
+    MEM_STRDEL(symbol->name, -1);
     MEM_FREE(symbol, Symbol*, sizeof(Symbol));
 }
 

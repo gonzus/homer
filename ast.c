@@ -114,10 +114,17 @@ void ast_free(ASTNode* n)
     }
 
     // LOG(("AST free(%p)", n));
-    if (n->type == ASTNodeTypeOperator) {
-        for(int j = 0; j < n->oper.nops; j++)
-            ast_free(n->oper.op[j]);
-        MEM_FREE(n->oper.op, ASTNode**, n->oper.nops * sizeof(ASTNode));
+    switch (n->type) {
+        case ASTNodeTypeOperator:
+            for(int j = 0; j < n->oper.nops; j++)
+                ast_free(n->oper.op[j]);
+            MEM_FREE(n->oper.op, ASTNode**, n->oper.nops * sizeof(ASTNode));
+            break;
+        case ASTNodeTypeConstantString:
+            MEM_STRDEL(n->cstr.value, -1);
+            break;
+        default:
+            break;
     }
     MEM_FREE(n, ASTNode*, sizeof(ASTNode));
 }
@@ -132,7 +139,7 @@ ASTNode* var_decl(Homer* homer, char* var)
         s = symtab_create(homer->symtab, var, homer->block, VARIABLE);
         n = ast_iden(s);
     }
-    MEM_FREE(var, char*, -1);
+    MEM_STRDEL(var, -1);
     return n;
 }
 
@@ -145,6 +152,6 @@ ASTNode* var_use(Homer* homer, char* var)
     } else {
         n = ast_iden(s);
     }
-    MEM_FREE(var, char*, -1);
+    MEM_STRDEL(var, -1);
     return n;
 }

@@ -82,9 +82,6 @@ int mem_free_called(const char* file,
     if (!var) {
         return 0;
     }
-    if (size < 0) {
-        size = strlen((char*) var) + 1;
-    }
     if (size <= 0 || count <= 0) {
         return 0;
     }
@@ -122,10 +119,15 @@ int mem_strdup(const char* file,
     }
 
     if (len <= 0) {
-        len = strlen(src) + 1;
+        len = strlen(src);
     }
-    _MEM_ALLOC(*tgt, char*, len);
+    _MEM_ALLOC(*tgt, char*, len + 1);
     memcpy(*tgt, src, len);
+    (*tgt)[len] = '\0';
+    ++len;
+#if defined(MEM_CHECK) && MEM_CHECK >= 2
+    fprintf(stderr, "=== MEM STRNEW %p %d\n", *tgt, len);
+#endif
     mem_alloc_called(file, line, *tgt, len, 1);
     return len;
 }
@@ -140,8 +142,12 @@ int mem_strdel(const char* file,
     }
 
     if (len <= 0) {
-        len = strlen(*str) + 1;
+        len = strlen(*str);
     }
+    ++len;
+#if defined(MEM_CHECK) && MEM_CHECK >= 2
+    fprintf(stderr, "=== MEM STRDEL %p %d\n", *str, len);
+#endif
     mem_free_called(file, line, *str, len, 1);
     _MEM_FREE(*str, char*, len);
     *str = 0;

@@ -120,6 +120,6 @@ static void parse_float(const char* str, double* ans)
 
 static void parse_string(const char* str, int len, char** ans)
 {
-    MEM_STRDUP(*ans, str + 1, len- 2);
+    MEM_STRDUP(*ans, str + 1, len - 2);
     LOG(("str [%s] (%d) => [%s]", str, len, *ans));
 }

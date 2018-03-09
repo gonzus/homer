@@ -3,19 +3,20 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "util.h"
 
 #define _MEM_ALLOC(scalar, type, size) \
   do { \
-    scalar = (type) malloc(size); \
+    (scalar) = (type) malloc(size); \
   } while (0)
 #define _MEM_REALLOC(scalar, type, osize, nsize) \
   do { \
-    scalar = (type) realloc(scalar, nsize); \
+    (scalar) = (type) realloc(scalar, nsize); \
   } while (0)
 #define _MEM_FREE(scalar, type, size) \
   do { \
     free(scalar); \
-    scalar = 0; \
+    (scalar) = 0; \
   } while (0)
 
 void mem_init(void);
@@ -41,11 +42,11 @@ void mem_fini(void);
   } while (0)
 #define MEM_STRDUP(tgt, src, len) \
   do { \
-    mem_strdup(__FILE__, __LINE__, &tgt, src, len);   \
+    mem_strdup(__FILE__, __LINE__, &(tgt), (src), len);   \
   } while (0)
 #define MEM_STRDEL(str, len) \
   do { \
-    mem_strdel(__FILE__, __LINE__, &str, len);   \
+    mem_strdel(__FILE__, __LINE__, &(str), len);   \
   } while (0)
 
 
@@ -75,23 +76,27 @@ int mem_strdel(const char* file,
 
 #else
 
-#define MEM_ALLOC(scalar, type, size)           _MEM_NEW(scalar, type, size)
+#define MEM_ALLOC(scalar, type, size)           _MEM_ALLOC(scalar, type, size)
 #define MEM_REALLOC(scalar, type, osize, nsize) _MEM_REALLOC(scalar, type, osize, nsize)
-#define MEM_FREE(scalar, type, size)            _MEM_DEL(scalar, type, size)
+#define MEM_FREE(scalar, type, size)            _MEM_FREE(scalar, type, size)
 
 #define MEM_STRDUP(tgt, src, len) \
   do { \
-    tgt = 0; \
-    if (!src) { \
+    (tgt) = 0; \
+    if (!(src)) { \
       break; \
     } \
-    int l = len <= 0 ? strlen(src) + 1 : len; \
-    _MEM_ALLOC(tgt, char*, l); \
-    memcpy(tgt, src, l); \
+    int l = (len); \
+    if (l <= 0) { l = strlen(src); } \
+    _MEM_ALLOC((tgt), char*, l + 1); \
+    memcpy((tgt), (src), l); \
+    (tgt)[l] = '\0'; \
   } while (0)
 #define MEM_STRDEL(str, len) \
   do { \
-    _MEM_DEL(str, char*, len); \
+    int l = (len); \
+    UNUSED_PARAMETER(l); \
+    _MEM_FREE((str), char*, l); \
   } while (0)
 
 #endif /* #if !defined(MEM_CHECK) || MEM_CHECK < 1 */
