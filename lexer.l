@@ -1,10 +1,8 @@
 %{
-#include <stdlib.h>
 #include "log.h"
 #include "mem.h"
 #include "homer.h"
 #include "ast.h"
-#include "symtab.h"
 #include "parser.h"
 #include "reentrant.h"
 

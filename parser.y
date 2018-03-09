@@ -1,7 +1,6 @@
 %{
 #include "homer.h"
 #include "ast.h"
-#include "symtab.h"
 #include "block.h"
 #include "parser.h"
 #include "reentrant.h"
