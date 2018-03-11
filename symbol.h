@@ -2,7 +2,8 @@
 #define SYMBOL_H_
 
 typedef enum {
-    SymbolCategoryType,
+    SymbolCategoryBuiltinType,
+    SymbolCategoryUserType,
     SymbolCategoryVariable,
     SymbolCategoryFunction,
 } SymbolCategory;

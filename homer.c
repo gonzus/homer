@@ -139,8 +139,8 @@ static void populate_table(Table* table)
         int type;
         const char* name;
     } data[] = {
-        { SymbolCategoryType, "int"   },
-        { SymbolCategoryType, "float" },
+        { SymbolCategoryBuiltinType, "int"   },
+        { SymbolCategoryBuiltinType, "float" },
     };
 
     for (unsigned long j = 0; j < sizeof(data) / sizeof(data[0]); ++j) {

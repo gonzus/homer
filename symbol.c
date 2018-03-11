@@ -4,7 +4,8 @@
 
 #if defined(HOMER_LOG) && HOMER_LOG > 0
 static const char* categories[] = {
-    "SymbolCategoryType",
+    "SymbolCategoryBuiltinType",
+    "SymbolCategoryUserType",
     "SymbolCategoryVariable",
     "SymbolCategoryFunction",
 };
