@@ -23,6 +23,9 @@ int interpreter_run(ASTNode* root, Homer* homer)
         interpreter_identifier,
         interpreter_block,
         interpreter_operator_var,
+        interpreter_operator_declaration,
+        interpreter_operator_function,
+        interpreter_operator_return,
         interpreter_operator_while,
         interpreter_operator_if,
         interpreter_operator_print,
@@ -68,19 +71,34 @@ int interpreter_identifier(ASTNode* n, Homer* homer)
         return 0;
     }
 
-    // TODO: there has to be a better way than comparing the type name...
-    if (strcmp(symbol->type->name, "int") == 0) {
-        LOG(("=== VAR ivalue [%s] -> %d", symbol->name, symbol->value.ivalue));
-        return symbol->value.ivalue;
+    switch (symbol->category) {
+        case SymbolCategoryBuiltinType:
+            LOG(("=== IDENT [%s] BuiltinType DONE", symbol->name));
+            return 0;
+        case SymbolCategoryUserType:
+            LOG(("=== IDENT [%s] UserType TODO", symbol->name));
+            return 0;
+        case SymbolCategoryVariable:
+            LOG(("=== IDENT [%s] Variable", symbol->name));
+            // TODO: there has to be a better way than comparing the type name...
+            if (strcmp(symbol->type->name, "int") == 0) {
+                LOG(("=== VAR ivalue [%s] -> %d", symbol->name, symbol->value.ivalue));
+                return symbol->value.ivalue;
+            }
+            if (strcmp(symbol->type->name, "float") == 0) {
+                LOG(("=== VAR fvalue [%s] -> FUCK", symbol->name));
+                return 0;
+            }
+            if (strcmp(symbol->type->name, "string") == 0) {
+                LOG(("=== VAR svalue [%s] -> FUCK", symbol->name));
+                return 0;
+            }
+            return 0;
+        case SymbolCategoryFunction:
+            LOG(("=== IDENT [%s] Function TODO", symbol->name));
+            return 0;
     }
-    if (strcmp(symbol->type->name, "float") == 0) {
-        LOG(("=== VAR fvalue [%s] -> FUCK", symbol->name));
-        return 0;
-    }
-    if (strcmp(symbol->type->name, "string") == 0) {
-        LOG(("=== VAR svalue [%s] -> FUCK", symbol->name));
-        return 0;
-    }
+
     return 0;
 }
 
@@ -98,6 +116,30 @@ int interpreter_operator_var(ASTNode* n, Homer* homer)
 {
     LOG(("RUN operator %s", token_name(n->oper.oper)));
     declare(n, homer);
+    return 0;
+}
+
+int interpreter_operator_declaration(ASTNode* n, Homer* homer)
+{
+    UNUSED_PARAMETER(n);
+    UNUSED_PARAMETER(homer);
+    LOG(("RUN operator %s", token_name(n->oper.oper)));
+    return 0;
+}
+
+int interpreter_operator_function(ASTNode* n, Homer* homer)
+{
+    UNUSED_PARAMETER(n);
+    UNUSED_PARAMETER(homer);
+    LOG(("RUN operator %s", token_name(n->oper.oper)));
+    return 0;
+}
+
+int interpreter_operator_return(ASTNode* n, Homer* homer)
+{
+    UNUSED_PARAMETER(n);
+    UNUSED_PARAMETER(homer);
+    LOG(("RUN operator %s", token_name(n->oper.oper)));
     return 0;
 }
 

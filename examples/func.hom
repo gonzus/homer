@@ -1,0 +1,27 @@
+# test functions
+
+print 100;
+
+var;
+var j: int = 2;
+var k, l: int = 4, p, q, r: float = 3.14;
+
+func rand() : int {
+    return 0;
+}
+
+func fact(n: int = 1) : int {
+    if (n <= 1) {
+        fact = 1;
+    } else {
+        fact = n * fact(n - 1);
+    }
+}
+
+func atan2(x, y: float) : float {
+    return 0;
+}
+
+j = fact(10) + sin(3.14) + atan2(20, 15) + rand();
+
+print 999;

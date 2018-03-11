@@ -100,18 +100,13 @@ void homer_warning(Homer* homer, const char *fmt, ...)
 
 static int parse_file(Homer* homer, FILE* fp)
 {
-#if 0
-    extern int yy_flex_debug;
-    yy_flex_debug = 1;
-#endif
-
     yyscan_t scanner;
     yylex_init(&scanner);
     yyset_in(fp, scanner);
 
-    LOG(("=== PARSE START ==="));
+    LOG(("==================== PARSE START ===================="));
     int parse = yyparse(scanner, homer);
-    LOG(("=== PARSE END ==="));
+    LOG(("==================== PARSE END ===================="));
 
     yylex_destroy(scanner);
     return parse;
@@ -119,7 +114,7 @@ static int parse_file(Homer* homer, FILE* fp)
 
 static int run_interpreter(Homer* homer)
 {
-    LOG(("=== RUN START ==="));
+    LOG(("==================== RUN START ===================="));
     homer->table = table_build(0, 0);
     populate_table(homer->table);
 #if 1
@@ -129,7 +124,7 @@ static int run_interpreter(Homer* homer)
     homer->root = 0;
     table_destroy(homer->table);
     homer->table = 0;
-    LOG(("=== RUN END ==="));
+    LOG(("==================== RUN END ===================="));
     return 0;
 }
 

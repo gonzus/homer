@@ -10,6 +10,9 @@ typedef struct Visitor {
     VisitorFunction* visit_identifier;
     VisitorFunction* visit_block;
     VisitorFunction* visit_operator_var;
+    VisitorFunction* visit_operator_declaration;
+    VisitorFunction* visit_operator_function;
+    VisitorFunction* visit_operator_return;
     VisitorFunction* visit_operator_while;
     VisitorFunction* visit_operator_if;
     VisitorFunction* visit_operator_print;

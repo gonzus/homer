@@ -31,15 +31,15 @@ IDREST              [_A-Za-z0-9]
 
 %%
 
-0             { yylval->iValue = 0; return NUM_INT; }
-0[bB]{BIN}+   { parse_integer(yytext + 2,  2, &yylval->iValue); return NUM_INT; }
-0{OCT}+       { parse_integer(yytext + 1,  8, &yylval->iValue); return NUM_INT; }
-[1-9]{DEC}*   { parse_integer(yytext + 0, 10, &yylval->iValue); return NUM_INT; }
-0[xX]{HEX}+   { parse_integer(yytext + 2, 16, &yylval->iValue); return NUM_INT; }
+0             { yylval->iValue = 0; return K_INT; }
+0[bB]{BIN}+   { parse_integer(yytext + 2,  2, &yylval->iValue); return K_INT; }
+0{OCT}+       { parse_integer(yytext + 1,  8, &yylval->iValue); return K_INT; }
+[1-9]{DEC}*   { parse_integer(yytext + 0, 10, &yylval->iValue); return K_INT; }
+0[xX]{HEX}+   { parse_integer(yytext + 2, 16, &yylval->iValue); return K_INT; }
 
-[1-9]{DEC}*\.{DEC}* { parse_float(yytext + 0, &yylval->fValue); return NUM_FLOAT; }
+[1-9]{DEC}*\.{DEC}* { parse_float(yytext + 0, &yylval->fValue); return K_REAL; }
 
-{Q}{NQ}*{Q}         { parse_string(yytext, yyleng, &yylval->sValue); return STRING; }
+{Q}{NQ}*{Q}         { parse_string(yytext, yyleng, &yylval->sValue); return K_STRING; }
 
 "&&"                return LAND;
 "||"                return LOR;
@@ -62,19 +62,22 @@ IDREST              [_A-Za-z0-9]
 "}"                 return RBRC;
 "["                 return LBRK;
 "]"                 return RBRK;
-"="                 return ASS;  // :-)
+"="                 return ASSIGN;
 ";"                 return SEMI;
 ":"                 return COLON;
 ","                 return COMMA;
 
-"var"               { return VAR;     }
-"while"             { return WHILE;   }
-"if"                { return IF;      }
-"else"              { return ELSE;    }
-"print"             { return PRINT;   }
+"var"               return VAR;
+"while"             return WHILE;
+"if"                return IF;
+"else"              return ELSE;
+"print"             return PRINT;
+"return"            return RETURN;
+"func"              return FUNC;
 
 {IDINIT}{IDREST}*   {
                         MEM_STRDUP(yylval->sValue, yytext, -1);
+                        LOG(("ident [%s]", yylval->sValue));
                         return IDENT;
                     }
 

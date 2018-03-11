@@ -28,13 +28,13 @@ typedef void* yyscan_t;
   ASTNode* ast;         /*   pointer to AST node           */
 }
 
-%token <iValue> NUM_INT
-%token <fValue> NUM_FLOAT
-%token <sValue> STRING
+%token <iValue> K_INT
+%token <fValue> K_REAL
+%token <sValue> K_STRING
 %token <sValue> IDENT
-%token VAR
-%token WHILE IF PRINT
-%token COMMA COLON SEMI ASS
+%token VAR FUNC DECL
+%token WHILE IF PRINT RETURN
+%token COMMA COLON SEMI ASSIGN
 %token LPAR RPAR
 %token LBRC RBRC
 %token LBRK RBRK
@@ -51,7 +51,7 @@ typedef void* yyscan_t;
 %left MUL DIV
 %nonassoc UMINUS        /* unary minus, highest precedence */
 
-%type <ast> program stmt stmts expr vars
+%type <ast> program stmt stmts expr exprs vars decl decls
 
 %%
 
@@ -62,19 +62,15 @@ program
 stmt
     : SEMI                                       { $$ = ast_oper(SEMI, 0); }
     | expr[E] SEMI                               { $$ = $E; }
-    | VAR vars[L] COLON IDENT[I] SEMI            { $$ = ast_oper(VAR, 2, $L, ast_iden($I)); }
-    | VAR vars[L] COLON IDENT[I] ASS expr[E] SEMI { $$ = ast_oper(VAR, 3, $L, ast_iden($I), $E); }
+    | VAR decls[D] SEMI                          { $$ = $D; }
     | PRINT expr[E] SEMI                         { $$ = ast_oper(PRINT, 1, $E); }
-    | IDENT[I] ASS expr[E] SEMI                  { $$ = ast_oper(ASS, 2, ast_iden($I), $E); }
+    | RETURN expr[E] SEMI                        { $$ = ast_oper(RETURN, 1, $E); }
+    | IDENT[I] ASSIGN expr[E] SEMI               { $$ = ast_oper(ASSIGN, 2, ast_iden($I), $E); }
     | WHILE LPAR expr[E] RPAR stmt[S]            { $$ = ast_oper(WHILE, 2, $E, $S); }
     | IF LPAR expr[C] RPAR stmt[I] %prec IFX     { $$ = ast_oper(IF, 2, $C, $I); }
     | IF LPAR expr[C] RPAR stmt[I] ELSE stmt[E]  { $$ = ast_oper(IF, 3, $C, $I, $E); }
     | LBRC stmts[L] RBRC                         { $$ = ast_block($L); }
-    ;
-
-vars
-    : IDENT[I]                                   { $$ = ast_iden($I); }
-    | vars[L] COMMA IDENT[I]                     { $$ = ast_oper(COMMA, 2, $L, ast_iden($I)); }
+    | FUNC IDENT[N] LPAR decls[P] RPAR COLON IDENT[T] LBRC stmts[S] RBRC  { $$ = ast_oper(FUNC, 4, ast_iden($N), $P, ast_iden($T), $S); }
     ;
 
 stmts
@@ -82,10 +78,26 @@ stmts
     | stmts[L] stmt[S]                           { $$ = ast_oper(SEMI, 2, $L, $S); }
     ;
 
+decl
+    : vars[V] COLON IDENT[I]                     { $$ = ast_oper(VAR, 2, $V, ast_iden($I)); }
+    | vars[V] COLON IDENT[I] ASSIGN expr[E]      { $$ = ast_oper(VAR, 3, $V, ast_iden($I), $E); }
+    ;
+
+decls
+    :                                            { $$ = ast_oper(DECL, 0); }
+    | decl[D]                                    { $$ = $D; }
+    | decls[L] COMMA decl[D]                     { $$ = ast_oper(DECL, 2, $L, $D); }
+    ;
+
+vars
+    : IDENT[I]                                   { $$ = ast_iden($I); }
+    | vars[L] COMMA IDENT[I]                     { $$ = ast_oper(COMMA, 2, $L, ast_iden($I)); }
+    ;
+
 expr
-    : NUM_INT[I]                                 { $$ = ast_cons_integer($I); }
-    | NUM_FLOAT[F]                               { $$ = ast_cons_double($F); }
-    | STRING[S]                                  { $$ = ast_cons_string($S); }
+    : K_INT[I]                                   { $$ = ast_cons_integer($I); }
+    | K_REAL[R]                                  { $$ = ast_cons_double($R); }
+    | K_STRING[S]                                { $$ = ast_cons_string($S); }
     | IDENT[I]                                   { $$ = ast_iden($I); }
     | SUB expr[X] %prec UMINUS                   { $$ = ast_oper(UMINUS, 1, $X); }
     | expr[X] ADD expr[Y]                        { $$ = ast_oper(ADD, 2, $X, $Y); }
@@ -102,7 +114,15 @@ expr
     | expr[X] LOR expr[Y]                        { $$ = ast_oper(LOR, 2, $X, $Y); }
     | LNOT expr[X]                               { $$ = ast_oper(LNOT, 1, $X); }
     | LPAR expr[X] RPAR                          { $$ = $X; }
+    | IDENT[I] LPAR exprs[E] RPAR                { $$ = ast_block($E); }
     ;
+
+exprs
+    :                                            { $$ = ast_oper(COMMA, 0); }
+    | expr[E]                                    { $$ = $E; }
+    | exprs[L] COMMA expr[E]                     { $$ = ast_oper(COMMA, 2, $L, $E); }
+    ;
+
 %%
 
 /* these functions are used internally or use something internal */

@@ -51,6 +51,9 @@ int visitor_visit(ASTNode* n, Homer* homer)
                 case VAR:
                     return visitor->visit_operator_var(n, homer);
 
+                case DECL:
+                    return visitor->visit_operator_declaration(n, homer);
+
                 case WHILE:
                     return visitor->visit_operator_while(n, homer);
 
@@ -60,13 +63,19 @@ int visitor_visit(ASTNode* n, Homer* homer)
                 case PRINT:
                     return visitor->visit_operator_print(n, homer);
 
+                case FUNC:
+                    return visitor->visit_operator_function(n, homer);
+
+                case RETURN:
+                    return visitor->visit_operator_return(n, homer);
+
                 case COMMA:
                     return visitor->visit_operator_comma(n, homer);
 
                 case SEMI:
                     return visitor->visit_operator_semi(n, homer);
 
-                case ASS:
+                case ASSIGN:
                     return visitor->visit_operator_assign(n, homer);
 
                 case UMINUS:
