@@ -3,7 +3,6 @@
 #include "mem.h"
 #include "homer.h"
 #include "ast.h"
-#include "symtab.h"
 #include "parser.h"
 
 #define AST_CHECK(x) \
@@ -40,19 +39,19 @@ ASTNode* ast_cons_string(char* value)
     return n;
 }
 
-ASTNode* ast_iden(Symbol* symbol)
+ASTNode* ast_iden(char* name)
 {
-    LOG(("AST iden %s %s", token_name(symbol->token), symbol->name));
+    LOG(("AST iden %s", name));
     AST_ALLOC(ASTNodeTypeIdentifier);
-    n->iden.symbol = symbol;
+    n->iden.name = name; /* grab ownership of pointer */
     return n;
 }
 
-ASTNode* ast_decl(int token)
+ASTNode* ast_decl(char* name)
 {
-    LOG(("AST decl %s", token_name(token)));
+    LOG(("AST decl %s", name));
     AST_ALLOC(ASTNodeTypeDeclaration);
-    n->decl.token = token;
+    n->iden.name = name; /* grab ownership of pointer */
     return n;
 }
 
@@ -94,6 +93,9 @@ ASTNode* ast_oper(int oper, int nops, ...)
             case ASTNodeTypeOperator:
                 pos += sprintf(label + pos, "OP");
                 break;
+            case ASTNodeTypeBlock:
+                pos += sprintf(label + pos, "BL");
+                break;
         }
     }
     va_end(ap);
@@ -101,6 +103,14 @@ ASTNode* ast_oper(int oper, int nops, ...)
     LOG(("AST oper %s %d ops [%s])", token_name(oper), nops, label));
 
 
+    return n;
+}
+
+ASTNode* ast_block(ASTNode* stmts)
+{
+    AST_ALLOC(ASTNodeTypeBlock);
+    n->block.stmts = stmts;
+    LOG(("AST block"));
     return n;
 }
 
@@ -117,38 +127,20 @@ void ast_free(ASTNode* n)
                 ast_free(n->oper.op[j]);
             MEM_FREE(n->oper.op, ASTNode**, n->oper.nops * sizeof(ASTNode));
             break;
+        case ASTNodeTypeBlock:
+            ast_free(n->block.stmts);
+            break;
         case ASTNodeTypeConstantString:
             MEM_STRDEL(n->cstr.value, -1);
+            break;
+        case ASTNodeTypeIdentifier:
+            MEM_STRDEL(n->iden.name, -1);
+            break;
+        case ASTNodeTypeDeclaration:
+            MEM_STRDEL(n->iden.name, -1);
             break;
         default:
             break;
     }
     MEM_FREE(n, ASTNode*, sizeof(ASTNode));
-}
-
-ASTNode* var_decl(Homer* homer, char* var)
-{
-    ASTNode* n = 0;
-    Symbol* s = symtab_lookup(homer->symtab, var, homer->block, 1);
-    if (s) {
-        homer_error(homer, "variable %s already declared in this block", var);
-    } else {
-        s = symtab_create(homer->symtab, var, homer->block, VARIABLE);
-        n = ast_iden(s);
-    }
-    MEM_STRDEL(var, -1);
-    return n;
-}
-
-ASTNode* var_use(Homer* homer, char* var)
-{
-    ASTNode* n = 0;
-    Symbol* s = symtab_lookup(homer->symtab, var, homer->block, 0);
-    if (!s) {
-        homer_error(homer, "undeclared variable %s", var);
-    } else {
-        n = ast_iden(s);
-    }
-    MEM_STRDEL(var, -1);
-    return n;
 }

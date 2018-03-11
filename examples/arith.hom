@@ -1,11 +1,20 @@
 # test arithmetic
 
-var j, k, l: int = 7;
+var j, k, l: int = 1;
+k = 2;
+l = 3;
 
 print 100;
 
-if (j+k*2 == 21) { print 1; } else { print 0; }
-if (2*k+l == 21) { print 1; } else { print 0; }
-if (j+3*l == 28) { print 1; } else { print 0; }
+if (j+k*2 ==  5) { print 1; } else { print 0; }
+if (2*k+l ==  7) { print 1; } else { print 0; }
+if (j+3*l == 10) { print 1; } else { print 0; }
+
+if (k > 1) {
+    var k: int = 9;
+    if (k == 9) { print 1; } else { print 0; }
+}
+
+if (k == 2) { print 1; } else { print 0; }
 
 print 999;

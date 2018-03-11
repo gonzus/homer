@@ -2,14 +2,17 @@
 #include <string.h>
 #include "homer.h"
 #include "ast.h"
-#include "symtab.h"
+#include "table.h"
 #include "parser.h"
 #include "log.h"
 #include "util.h"
 #include "visitor.h"
 #include "interp.h"
 
-static int initialize(ASTNode* n, Homer* homer);
+static int declare(ASTNode* n, Homer* homer);
+static Symbol* var_declare(ASTNode* var, Symbol* type, ASTNode* init, Homer* homer);
+static Symbol* var_assign(ASTNode* var, ASTNode* init, Homer* homer);
+static Symbol* sym_assign(Symbol* symbol, ASTNode* init, Homer* homer);
 
 int interpreter_run(ASTNode* root, Homer* homer)
 {
@@ -19,10 +22,12 @@ int interpreter_run(ASTNode* root, Homer* homer)
         interpreter_constant_string,
         interpreter_identifier,
         interpreter_declaration,
+        interpreter_block,
         interpreter_operator_var,
         interpreter_operator_while,
         interpreter_operator_if,
         interpreter_operator_print,
+        interpreter_operator_comma,
         interpreter_operator_semi,
         interpreter_operator_assign,
         interpreter_operator_unop,
@@ -58,22 +63,53 @@ int interpreter_constant_string(ASTNode* n, Homer* homer)
 
 int interpreter_identifier(ASTNode* n, Homer* homer)
 {
-    UNUSED_PARAMETER(homer);
-    LOG(("RUN identifier %s", n->iden.symbol->name));
-    return n->iden.symbol->value;
+    Symbol* symbol = table_lookup(homer->table, n->iden.name, 0);
+    if (!symbol) {
+        homer_error(homer, "unknown variable %s", n->iden.name);
+        return 0;
+    }
+
+    // TODO: there has to be a better way than comparing the type name...
+    if (strcmp(symbol->type->name, "int") == 0) {
+        LOG(("=== VAR ivalue [%s] -> %d", symbol->name, symbol->value.ivalue));
+        return symbol->value.ivalue;
+    }
+    if (strcmp(symbol->type->name, "float") == 0) {
+        LOG(("=== VAR fvalue [%s] -> FUCK", symbol->name));
+        return 0;
+    }
+    if (strcmp(symbol->type->name, "string") == 0) {
+        LOG(("=== VAR svalue [%s] -> FUCK", symbol->name));
+        return 0;
+    }
+    return 0;
 }
 
 int interpreter_declaration(ASTNode* n, Homer* homer)
 {
     UNUSED_PARAMETER(homer);
-    LOG(("RUN declaration %s", token_name(n->decl.token)));
-    return n->decl.token;
+#if defined(HOMER_LOG) && HOMER_LOG > 0
+#else
+    UNUSED_PARAMETER(n);
+#endif
+    LOG(("RUN declaration %s", n->decl.name));
+    return 0;
+}
+
+int interpreter_block(ASTNode* n, Homer* homer)
+{
+    Table* current = homer->table;
+    homer->table = table_build(0, current);
+    visitor_visit(n->block.stmts, homer);
+    table_destroy(homer->table);
+    homer->table = current;
+    return 0;
 }
 
 int interpreter_operator_var(ASTNode* n, Homer* homer)
 {
     LOG(("RUN operator %s", token_name(n->oper.oper)));
-    initialize(n, homer);
+    declare(n, homer);
     return 0;
 }
 
@@ -105,27 +141,36 @@ int interpreter_operator_print(ASTNode* n, Homer* homer)
     return 0;
 }
 
+int interpreter_operator_comma(ASTNode* n, Homer* homer)
+{
+    LOG(("RUN operator %s", token_name(n->oper.oper)));
+    int i = 0;
+    for (int j = 0; j < n->oper.nops; ++j) {
+        visitor_visit(n->oper.op[j], homer);
+    }
+    return i;
+}
+
 int interpreter_operator_semi(ASTNode* n, Homer* homer)
 {
     LOG(("RUN operator %s", token_name(n->oper.oper)));
-    int i0 = visitor_visit(n->oper.op[0], homer);
-    int i1 = visitor_visit(n->oper.op[1], homer);
-    UNUSED_PARAMETER(i0);
-    return i1;
+    int i = 0;
+    for (int j = 0; j < n->oper.nops; ++j) {
+        visitor_visit(n->oper.op[j], homer);
+    }
+    return i;
 }
 
 int interpreter_operator_assign(ASTNode* n, Homer* homer)
 {
     LOG(("RUN operator %s", token_name(n->oper.oper)));
-    // TODO: this just won't do...
-    Symbol* s0 = n->oper.op[0]->iden.symbol;
-    int i1 = visitor_visit(n->oper.op[1], homer);
-    return s0->value = i1;
+    var_assign(n->oper.op[0], n->oper.op[1], homer);
+    return 0;
 }
 
 int interpreter_operator_unop(ASTNode* n, Homer* homer)
 {
-    LOG(("RUN operator %s", token_name(n->oper.oper)));
+    LOG(("RUN unary operator %s", token_name(n->oper.oper)));
     int i0 = visitor_visit(n->oper.op[0], homer);
     switch (n->oper.oper) {
         case UMINUS:
@@ -138,7 +183,7 @@ int interpreter_operator_unop(ASTNode* n, Homer* homer)
 
 int interpreter_operator_binop(ASTNode* n, Homer* homer)
 {
-    LOG(("RUN operator %s", token_name(n->oper.oper)));
+    LOG(("RUN binary operator %s", token_name(n->oper.oper)));
     int i0 = visitor_visit(n->oper.op[0], homer);
     int i1 = visitor_visit(n->oper.op[1], homer);
     switch (n->oper.oper) {
@@ -193,31 +238,40 @@ int interpreter_unknown(ASTNode* n, Homer* homer)
     return 0;
 }
 
-static int initialize(ASTNode* n, Homer* homer)
+static int declare(ASTNode* n, Homer* homer)
 {
-    if (n->oper.nops < 3) {
+    if (n->oper.nops < 2) {
+        return 0;
+    }
+
+    ASTNode* nlist = n->oper.op[0];
+    ASTNode* ntype = n->oper.op[1];
+    ASTNode* ninit = 0;
+    if (n->oper.nops > 2) {
+        ninit = n->oper.op[2];
+    }
+
+    // do we already have the type anywhere?
+    Symbol* type = table_lookup(homer->table, ntype->decl.name, 0);
+    if (!type) {
+        homer_error(homer, "type %s not know in this scope", ntype->decl.name);
         return 0;
     }
 
     int count = 0;
-    int val = interpreter_run(n->oper.op[2], homer);
-    ASTNode* v = n->oper.op[0];
-    while (1) {
-        if (!v) {
-            break;
-        }
+    for (ASTNode* v = nlist; v; ) {
         switch (v->type) {
             case ASTNodeTypeIdentifier:
-                v->iden.symbol->value = val;
                 ++count;
+                var_declare(v, type, ninit, homer);
                 v = 0;
                 break;
             case ASTNodeTypeOperator:
                 if (v->oper.oper != COMMA) {
                     v = 0;
                 } else {
-                    v->oper.op[1]->iden.symbol->value = val;
                     ++count;
+                    var_declare(v->oper.op[1], type, ninit, homer);
                     v = v->oper.op[0];
                 }
                 break;
@@ -227,4 +281,61 @@ static int initialize(ASTNode* n, Homer* homer)
         }
     }
     return count;
+}
+
+static Symbol* var_declare(ASTNode* var, Symbol* type, ASTNode* init, Homer* homer)
+{
+    Symbol* s = 0;
+
+    // do we already have it in our local table?
+    s = table_lookup(homer->table, var->iden.name, 1);
+    if (s) {
+        homer_error(homer, "var %s already exists in this scope", var->iden.name);
+        return 0;
+    }
+#if 0
+    // does it exist in outer scopes? warn
+    s = table_lookup(homer->table, var->iden.name, 0);
+    if (s) {
+        homer_warning(homer, "var %s hides previous variable", var->iden.name);
+    }
+#endif
+    s = table_create(homer->table, var->iden.name, SymbolCategoryVariable);
+    if (!s) {
+        homer_error(homer, "could not create var %s of type %s", var->iden.name, type->name);
+        return 0;
+    }
+    s->type = type;
+    return sym_assign(s, init, homer);
+}
+
+static Symbol* var_assign(ASTNode* var, ASTNode* init, Homer* homer)
+{
+    Symbol* s = table_lookup(homer->table, var->iden.name, 0);
+    if (!s) {
+        homer_error(homer, "var %s does not exist", var->iden.name);
+        return 0;
+    }
+    return sym_assign(s, init, homer);
+}
+
+static Symbol* sym_assign(Symbol* symbol, ASTNode* init, Homer* homer)
+{
+    if (! init) {
+        return 0;
+    }
+    int value = visitor_visit(init, homer);
+
+    // TODO: there has to be a better way than comparing the type name...
+    if (strcmp(symbol->type->name, "int") == 0) {
+        LOG(("=== VAR ivalue [%s] <- %d", symbol->name, value));
+        symbol->value.ivalue = value;
+    }
+    else if (strcmp(symbol->type->name, "float") == 0) {
+        LOG(("=== VAR fvalue [%s] FUCK", symbol->name));
+    }
+    else if (strcmp(symbol->type->name, "string") == 0) {
+        LOG(("=== VAR svalue [%s] FUCK", symbol->name));
+    }
+    return symbol;
 }

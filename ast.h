@@ -9,6 +9,7 @@ typedef enum {
     ASTNodeTypeIdentifier,
     ASTNodeTypeDeclaration,
     ASTNodeTypeOperator,
+    ASTNodeTypeBlock,
 } ASTNodeEnum;
 
 /* Constant AST nodes */
@@ -24,12 +25,12 @@ typedef struct ASTNodeConstantString {
 
 /* Identifier AST nodes */
 typedef struct ASTNodeIdentifier {
-    struct Symbol* symbol;
+    char* name;
 } ASTNodeIdentifier;
 
 /* Declaration AST nodes */
 typedef struct ASTNodeDeclaration {
-    int token; // TODO
+    char* name;
 } ASTNodeDeclaration;
 
 /* Operator AST nodes */
@@ -38,6 +39,11 @@ typedef struct ASTNodeOperator {
     int nops;            // Number of operants
     struct ASTNode** op; // Operands
 } ASTNodeOperator;
+
+/* Block AST nodes */
+typedef struct ASTNodeBlock {
+    struct ASTNode* stmts;
+} ASTNodeBlock;
 
 /* AST nodes */
 typedef struct ASTNode {
@@ -49,18 +55,17 @@ typedef struct ASTNode {
         ASTNodeIdentifier      iden;
         ASTNodeDeclaration     decl;
         ASTNodeOperator        oper;
+        ASTNodeBlock           block;
     };
 } ASTNode;
 
 ASTNode* ast_cons_integer(long value);
 ASTNode* ast_cons_double(double value);
 ASTNode* ast_cons_string(char* value);
-ASTNode* ast_iden(struct Symbol* symbol);
-ASTNode* ast_decl(int token);
+ASTNode* ast_iden(char* name);
+ASTNode* ast_decl(char* name);
 ASTNode* ast_oper(int oper, int nops, ...);
+ASTNode* ast_block(ASTNode* stmts);
 void ast_free(ASTNode* n);
-
-ASTNode* var_decl(struct Homer* homer, char* var);
-ASTNode* var_use(struct Homer* homer, char* var);
 
 #endif

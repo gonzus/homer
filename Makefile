@@ -14,12 +14,12 @@ C_FILES = \
 	lexer.c \
 	parser.c \
 	ast.c \
-	symtab.c \
+	symbol.c \
+	table.c \
 	visitor.c \
 	interp.c \
 	log.c \
 	mem.c \
-	block.c \
 	homer.c \
 	main.c \
 
@@ -92,12 +92,12 @@ lexer.o: lexer.c parser.h
 
 parser.o: parser.c parser.h
 ast.o: ast.c
-symtab.o: symtab.c
+symbol.o: symbol.c
+table.o: table.c
 visitor.o: visitor.c
 interp.o: interp.c parser.h
 log.o: log.c
 mem.o: mem.c
-block.o: block.c
 homer.o: homer.c parser.h
 
 clean:

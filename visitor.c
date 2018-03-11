@@ -46,6 +46,9 @@ int visitor_visit(ASTNode* n, Homer* homer)
         case ASTNodeTypeDeclaration:
             return visitor->visit_declaration(n, homer);
 
+        case ASTNodeTypeBlock:
+            return visitor->visit_block(n, homer);
+
         case ASTNodeTypeOperator:
             switch (n->oper.oper) {
                 case VAR:
@@ -59,6 +62,9 @@ int visitor_visit(ASTNode* n, Homer* homer)
 
                 case PRINT:
                     return visitor->visit_operator_print(n, homer);
+
+                case COMMA:
+                    return visitor->visit_operator_comma(n, homer);
 
                 case SEMI:
                     return visitor->visit_operator_semi(n, homer);
