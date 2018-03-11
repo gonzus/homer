@@ -8,7 +8,6 @@ typedef struct Visitor {
     VisitorFunction* visit_constant_double;
     VisitorFunction* visit_constant_string;
     VisitorFunction* visit_identifier;
-    VisitorFunction* visit_declaration;
     VisitorFunction* visit_block;
     VisitorFunction* visit_operator_var;
     VisitorFunction* visit_operator_while;

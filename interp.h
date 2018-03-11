@@ -7,7 +7,6 @@ int interpreter_constant_integer(struct ASTNode* n, struct Homer* homer);
 int interpreter_constant_double(struct ASTNode* n, struct Homer* homer);
 int interpreter_constant_string(struct ASTNode* n, struct Homer* homer);
 int interpreter_identifier(struct ASTNode* n, struct Homer* homer);
-int interpreter_declaration(struct ASTNode* n, struct Homer* homer);
 int interpreter_block(struct ASTNode* n, struct Homer* homer);
 int interpreter_operator_var(struct ASTNode* n, struct Homer* homer);
 int interpreter_operator_while(struct ASTNode* n, struct Homer* homer);

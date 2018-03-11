@@ -21,7 +21,6 @@ int interpreter_run(ASTNode* root, Homer* homer)
         interpreter_constant_double,
         interpreter_constant_string,
         interpreter_identifier,
-        interpreter_declaration,
         interpreter_block,
         interpreter_operator_var,
         interpreter_operator_while,
@@ -82,17 +81,6 @@ int interpreter_identifier(ASTNode* n, Homer* homer)
         LOG(("=== VAR svalue [%s] -> FUCK", symbol->name));
         return 0;
     }
-    return 0;
-}
-
-int interpreter_declaration(ASTNode* n, Homer* homer)
-{
-    UNUSED_PARAMETER(homer);
-#if defined(HOMER_LOG) && HOMER_LOG > 0
-#else
-    UNUSED_PARAMETER(n);
-#endif
-    LOG(("RUN declaration %s", n->decl.name));
     return 0;
 }
 
@@ -252,9 +240,9 @@ static int declare(ASTNode* n, Homer* homer)
     }
 
     // do we already have the type anywhere?
-    Symbol* type = table_lookup(homer->table, ntype->decl.name, 0);
+    Symbol* type = table_lookup(homer->table, ntype->iden.name, 0);
     if (!type) {
-        homer_error(homer, "type %s not know in this scope", ntype->decl.name);
+        homer_error(homer, "type %s not know in this scope", ntype->iden.name);
         return 0;
     }
 

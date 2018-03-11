@@ -31,8 +31,7 @@ typedef void* yyscan_t;
 %token <iValue> NUM_INT
 %token <fValue> NUM_FLOAT
 %token <sValue> STRING
-%token <sValue> VARIABLE  /* receive variables as string, create symbol here */
-%token <sValue> INTEGER FLOAT
+%token <sValue> IDENT
 %token VAR
 %token WHILE IF PRINT
 %token COMMA COLON SEMI ASS
@@ -52,7 +51,7 @@ typedef void* yyscan_t;
 %left MUL DIV
 %nonassoc UMINUS        /* unary minus, highest precedence */
 
-%type <ast> program stmt stmts expr decl vars
+%type <ast> program stmt stmts expr vars
 
 %%
 
@@ -63,24 +62,19 @@ program
 stmt
     : SEMI                                       { $$ = ast_oper(SEMI, 0); }
     | expr[E] SEMI                               { $$ = $E; }
-    | VAR vars[L] COLON decl[D] SEMI             { $$ = ast_oper(VAR, 2, $L, $D); }
-    | VAR vars[L] COLON decl[D] ASS expr[E] SEMI { $$ = ast_oper(VAR, 3, $L, $D, $E); }
+    | VAR vars[L] COLON IDENT[I] SEMI            { $$ = ast_oper(VAR, 2, $L, ast_iden($I)); }
+    | VAR vars[L] COLON IDENT[I] ASS expr[E] SEMI { $$ = ast_oper(VAR, 3, $L, ast_iden($I), $E); }
     | PRINT expr[E] SEMI                         { $$ = ast_oper(PRINT, 1, $E); }
-    | VARIABLE[V] ASS expr[E] SEMI               { $$ = ast_oper(ASS, 2, ast_iden($V), $E); }
+    | IDENT[I] ASS expr[E] SEMI                  { $$ = ast_oper(ASS, 2, ast_iden($I), $E); }
     | WHILE LPAR expr[E] RPAR stmt[S]            { $$ = ast_oper(WHILE, 2, $E, $S); }
     | IF LPAR expr[C] RPAR stmt[I] %prec IFX     { $$ = ast_oper(IF, 2, $C, $I); }
     | IF LPAR expr[C] RPAR stmt[I] ELSE stmt[E]  { $$ = ast_oper(IF, 3, $C, $I, $E); }
     | LBRC stmts[L] RBRC                         { $$ = ast_block($L); }
     ;
 
-decl
-    : INTEGER[T]                                 { $$ = ast_decl($T); }
-    | FLOAT[T]                                   { $$ = ast_decl($T); }
-    ;
-
 vars
-    : VARIABLE[V]                                { $$ = ast_iden($V); }
-    | vars[L] COMMA VARIABLE[V]                  { $$ = ast_oper(COMMA, 2, $L, ast_iden($V)); }
+    : IDENT[I]                                   { $$ = ast_iden($I); }
+    | vars[L] COMMA IDENT[I]                     { $$ = ast_oper(COMMA, 2, $L, ast_iden($I)); }
     ;
 
 stmts
@@ -92,7 +86,7 @@ expr
     : NUM_INT[I]                                 { $$ = ast_cons_integer($I); }
     | NUM_FLOAT[F]                               { $$ = ast_cons_double($F); }
     | STRING[S]                                  { $$ = ast_cons_string($S); }
-    | VARIABLE[V]                                { $$ = ast_iden($V); }
+    | IDENT[I]                                   { $$ = ast_iden($I); }
     | SUB expr[X] %prec UMINUS                   { $$ = ast_oper(UMINUS, 1, $X); }
     | expr[X] ADD expr[Y]                        { $$ = ast_oper(ADD, 2, $X, $Y); }
     | expr[X] SUB expr[Y]                        { $$ = ast_oper(SUB, 2, $X, $Y); }

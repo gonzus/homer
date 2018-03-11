@@ -8,7 +8,7 @@
 
 static void parse_integer(const char* str, int base, long* ans);
 static void parse_float(const char* str, double* ans);
-static void parse_string(const char* str, int len, int with_quotes, char** ans);
+static void parse_string(const char* str, int len, char** ans);
 %}
 
 %option reentrant bison-bridge
@@ -39,7 +39,7 @@ IDREST              [_A-Za-z0-9]
 
 [1-9]{DEC}*\.{DEC}* { parse_float(yytext + 0, &yylval->fValue); return NUM_FLOAT; }
 
-{Q}{NQ}*{Q}         { parse_string(yytext, yyleng, 1, &yylval->sValue); return STRING; }
+{Q}{NQ}*{Q}         { parse_string(yytext, yyleng, &yylval->sValue); return STRING; }
 
 "&&"                return LAND;
 "||"                return LOR;
@@ -68,8 +68,6 @@ IDREST              [_A-Za-z0-9]
 ","                 return COMMA;
 
 "var"               { return VAR;     }
-"int"               { parse_string(yytext, yyleng, 0, &yylval->sValue); return INTEGER; }
-"float"             { parse_string(yytext, yyleng, 0, &yylval->sValue); return FLOAT;   }
 "while"             { return WHILE;   }
 "if"                { return IF;      }
 "else"              { return ELSE;    }
@@ -77,7 +75,7 @@ IDREST              [_A-Za-z0-9]
 
 {IDINIT}{IDREST}*   {
                         MEM_STRDUP(yylval->sValue, yytext, -1);
-                        return VARIABLE;
+                        return IDENT;
                     }
 
 [#].*               { /* ignore comments */ }
@@ -117,8 +115,8 @@ static void parse_float(const char* str, double* ans)
     LOG(("dbl [%s] -> [%s] => %lf", str, tmp, *ans));
 }
 
-static void parse_string(const char* str, int len, int with_quotes, char** ans)
+static void parse_string(const char* str, int len, char** ans)
 {
-    MEM_STRDUP(*ans, str + (with_quotes ? 1 : 0), len - (with_quotes ? 2 : 0));
+    MEM_STRDUP(*ans, str + 1, len - 2);
     LOG(("str [%s] (%d) => [%s]", str, len, *ans));
 }

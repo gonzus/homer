@@ -43,9 +43,6 @@ int visitor_visit(ASTNode* n, Homer* homer)
         case ASTNodeTypeIdentifier:
             return visitor->visit_identifier(n, homer);
 
-        case ASTNodeTypeDeclaration:
-            return visitor->visit_declaration(n, homer);
-
         case ASTNodeTypeBlock:
             return visitor->visit_block(n, homer);
 

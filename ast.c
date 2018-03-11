@@ -47,14 +47,6 @@ ASTNode* ast_iden(char* name)
     return n;
 }
 
-ASTNode* ast_decl(char* name)
-{
-    LOG(("AST decl %s", name));
-    AST_ALLOC(ASTNodeTypeDeclaration);
-    n->iden.name = name; /* grab ownership of pointer */
-    return n;
-}
-
 ASTNode* ast_oper(int oper, int nops, ...)
 {
     AST_ALLOC(ASTNodeTypeOperator);
@@ -86,9 +78,6 @@ ASTNode* ast_oper(int oper, int nops, ...)
                 break;
             case ASTNodeTypeIdentifier:
                 pos += sprintf(label + pos, "ID");
-                break;
-            case ASTNodeTypeDeclaration:
-                pos += sprintf(label + pos, "DE");
                 break;
             case ASTNodeTypeOperator:
                 pos += sprintf(label + pos, "OP");
@@ -134,9 +123,6 @@ void ast_free(ASTNode* n)
             MEM_STRDEL(n->cstr.value, -1);
             break;
         case ASTNodeTypeIdentifier:
-            MEM_STRDEL(n->iden.name, -1);
-            break;
-        case ASTNodeTypeDeclaration:
             MEM_STRDEL(n->iden.name, -1);
             break;
         default:
